@@ -110,7 +110,7 @@ floor,column,zone,device,unit,type,raw_missing_pct,implausible_removed,spikes_re
 5,z1_AC4(kW),1,AC4,kW,AC,4.95,0,0,761,4.85,29133,
 5,z1_Light(kW),1,Light,kW,Light,1.02,0,23,320,0.98,3298,
 5,z1_Plug(kW),1,Plug,kW,Plug,0.92,0,6,966,0.79,1751,
-5,z1_S1(degC),1,S1,degC,Temperature,41.68,33972,0,7879,44.98,251873,Reads ~14 °C in office hours vs 20–22 °C in other zones; likely in AC supply air. Readings < 15 °C removed; remaining office-hours values still biased cold. Exclude from comfort analysis. No sensor data 12-15 Sep 2018 to 6 Mar 2019 (building-wide outage).
+5,z1_S1(degC),1,S1,degC,Temperature,41.68,33972,0,7879,44.98,251873,Reads ~14 °C in office hours vs 20-22 °C in other zones; likely in AC supply air. Readings < 15 °C removed; remaining office-hours values still biased cold. Exclude from comfort analysis. No sensor data 12-15 Sep 2018 to 6 Mar 2019 (building-wide outage).
 5,z1_S1(RH%),1,S1,RH%,Humidity,41.68,0,0,3885,41.19,251873,No sensor data 12-15 Sep 2018 to 6 Mar 2019 (building-wide outage).
 5,z1_S1(lux),1,S1,lux,Illuminance,41.68,0,0,3885,41.19,251873,"No sensor data 12-15 Sep 2018 to 6 Mar 2019 (building-wide outage). Never exceeds ~140 lux vs 300-500 lux typical at office desks; sensor probably not at desk height. Use as a relative indicator (lights on/off, daylight), not absolute desk illuminance."
 5,z2_AC1(kW),2,AC1,kW,AC,4.94,0,0,666,4.85,29133,
