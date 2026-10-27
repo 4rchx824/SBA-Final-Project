@@ -35,63 +35,13 @@ Running the notebook (about 2 minutes) writes:
 | `outputs/analytics/` | `building_15min.csv`, `floor_15min.csv`, `zone_hourly.csv`, `daily_summary.csv`, `data_quality.csv`, `removed_readings.csv` |
 | `outputs/figures/` | Every chart in the notebook as a PNG, ready for a report, including side-by-side before/after comparisons (`9_*.png`) |
 
-## Requirements
+## Run the notebook
 
-- **Python 3.15**. Check with `python --version`.
-- **pandas 3.0.6 or newer.** The pandas 2.x line has no prebuilt package for Python 3.15, and a copy compiled from source crashes when it parses dates. `requirements.txt` pins this for you.
-- About 1 GB of free disk space for the virtual environment, plus about 1 GB for `outputs/`
-
-## 1. One-time setup
-
-From the repository root, move into this folder. All the commands below are run from here:
+Set up the Python environment from the repository root using the instructions in the root [`README.md`](../README.md). From a terminal, change to this folder before running the notebook:
 
 ```bash
 cd data-cleaning
 ```
-
-Create the virtual environment and activate it. It lives at the repository root (`../.venv`), which is where VS Code looks for it:
-
-```bash
-python -m venv ../.venv
-```
-
-```bash
-source ../.venv/bin/activate
-```
-
-VS Code activates `.venv` automatically in new terminals once it exists. You'll see `(.venv)` in the prompt.
-
-Install the dependencies:
-
-```bash
-pip install --upgrade pip
-```
-
-```bash
-pip install -r requirements.txt
-```
-
-On Python 3.15, pip may have to compile pandas from source. That can take a few minutes, and on macOS it needs the Xcode Command Line Tools (`xcode-select --install`).
-
-Register the environment as a Jupyter kernel:
-
-```bash
-../.venv/bin/python -m ipykernel install --user --name sba-py315 --display-name "Python 3.15 (SBA)"
-```
-
-> **Why `../.venv/bin/python` and not `python`?** If `python` is a shell alias (for example, to `python3.15`), the alias still wins after the venv is activated, so it runs the system Python rather than the venv's. `pip` and `jupyter` aren't aliased, so they use the venv's copies.
-
-Check that the kernel is registered:
-
-```bash
-jupyter kernelspec list
-```
-
-`sba-py315` should appear in the list. `.venv/` is already in `.gitignore`, so the environment is never committed.
-
-## 2. Run the notebook
-
-In a new terminal, first `cd data-cleaning` from the repository root. If `(.venv)` isn't in the prompt, run `source ../.venv/bin/activate`.
 
 ### Option A: VS Code
 
@@ -141,8 +91,6 @@ pip install <package>
 | Problem | Fix |
 |---|---|
 | `Running cells with 'Python 3.15.0' requires the ipykernel package` | VS Code picked the system Python. Switch the kernel to **Python 3.15 (SBA)**. |
-| `error: externally-managed-environment` when running `pip install` | The venv isn't active. Run `source ../.venv/bin/activate`, or use `../.venv/bin/pip`. |
-| `No module named ipykernel` when registering the kernel | You ran `python -m ipykernel` with an aliased `python`. Use `../.venv/bin/python -m ipykernel ...`. |
 | `No such file or directory: 'requirements.txt'` or `'main.ipynb'` | You're not in this folder. Run `cd data-cleaning` from the repository root. |
 | `FileNotFoundError` for a CSV | Check that the working directory is `data-cleaning/` (`import os; os.getcwd()`). |
 | pandas fails to build | Install the Xcode Command Line Tools, or rebuild the venv with Python 3.14 and re-register the kernel. |
