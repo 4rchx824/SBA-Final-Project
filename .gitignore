@@ -7,5 +7,12 @@ __pycache__/
 # macOS
 .DS_Store
 
+# ===== Data Cleaning =====
 # Large regenerated outputs (~700 MB): run data-cleaning/main.ipynb to recreate them
 data-cleaning/outputs/clean/
+
+# ===== Baseline =====
+# Large regenerated outputs (~1.5 GB): run baseline/main.ipynb to recreate them
+baseline/outputs/
+# Downloaded Open-Meteo ERA5 cache (regenerable from the baseline notebook)
+baseline/data/bangkok_era5_hourly_2018-2019.csv
