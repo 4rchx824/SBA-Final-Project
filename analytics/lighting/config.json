@@ -1,0 +1,21 @@
+{
+  "scope": "Person 1 - Lighting assessment; Person 2 owns reduction scenarios",
+  "calibration_start": "2019-03-06",
+  "evaluation_start": "2019-04-01",
+  "evaluation_end": "2019-05-01",
+  "timezone": "Asia/Bangkok",
+  "operating_weekdays": [0, 1, 2, 3, 4],
+  "operating_start_hour": 8,
+  "operating_end_hour": 18,
+  "supporting_tables": "data-cleaning/outputs/analytics",
+  "coverage_gate": 0.8,
+  "minimum_state_intervals": 96,
+  "minimum_cluster_share": 0.1,
+  "minimum_state_separation": 2.0,
+  "minimum_boundary_gap_kW": 0.02,
+  "activity_persistence_minutes": [30, 60, 90],
+  "primary_activity_persistence_minutes": 60,
+  "matched_power_bins": 10,
+  "minimum_matched_bin_count": 8,
+  "note": "All operating/activity gates are exploratory assumptions; 500 lux is not a comfort or occupancy eligibility rule. Scenario settings are deliberately left to Person 2."
+}
