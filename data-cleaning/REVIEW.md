@@ -14,7 +14,7 @@ The pipeline is suitable for retrospective descriptive and operating-pattern ana
 | Constant standby | Constant low power can be legitimate operation | Retain; a flat meter has no supported two-state calibration |
 | Closure labels | Energy-derived labels are hypotheses, not confirmed university closures | Context only; do not validate energy-derived occupancy with them |
 | Aggregation | 80% post-cleaning coverage is useful but includes interpolated data | Retain coverage and separate per-measure interpolation fraction in assessment adapter |
-| Output paths | Current notebook uses `outputs/analytics/`; root-level CSVs are legacy | Document canonical paths and avoid silent fallbacks |
+| Output paths | Aggregated tables use `outputs/aggregated/`; quality reports use `outputs/quality/` | Document canonical paths and avoid silent fallbacks |
 
 The spike detector's centered rolling window, global quantile and interpolation use information from later timestamps. This is a retrospective cleaning pipeline, not a leakage-free real-time deployment evaluation. March-only operating calibration prevents direct April threshold fitting, but does not turn the historical cleaning into an online algorithm.
 

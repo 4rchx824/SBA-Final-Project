@@ -32,7 +32,8 @@ Running the notebook (about 2 minutes) writes:
 | Folder | Contents |
 |---|---|
 | `outputs/clean/` | The 14 source files in their original format (same names and columns), cleaned: about 750 MB in total |
-| `outputs/analytics/` | `building_15min.csv`, `floor_15min.csv`, `zone_hourly.csv`, `daily_summary.csv`, `data_quality.csv`, `removed_readings.csv` |
+| `outputs/aggregated/` | `building_15min.csv`, `floor_15min.csv`, `zone_hourly.csv`, `daily_summary.csv` |
+| `outputs/quality/` | `data_quality.csv`, `removed_readings.csv`, `interpolated_runs.csv` |
 | `outputs/figures/` | Every chart in the notebook as a PNG, ready for a report, including side-by-side before/after comparisons (`9_*.png`) |
 
 ## Run the notebook
@@ -100,3 +101,15 @@ To remove the kernel later:
 ```bash
 jupyter kernelspec uninstall sba-py315
 ```
+
+## Output folder layout
+
+```text
+outputs/
+├── aggregated/  # building_15min.csv, floor_15min.csv, zone_hourly.csv, daily_summary.csv
+├── clean/       # 14 cleaned minute-level floor/year CSVs
+├── figures/     # Cleaning diagnostic figures
+└── quality/     # data_quality.csv, removed_readings.csv, interpolated_runs.csv
+```
+
+The lighting adapter reads aggregate and quality paths separately from `analytics/lighting/config.json`. The baseline still reads `outputs/clean/`; its input path is unchanged. The four aggregated CSVs and the two existing quality reports remain tracked in Git at these locations. The interpolation log and large cleaned source files remain ignored and can be regenerated with this notebook.

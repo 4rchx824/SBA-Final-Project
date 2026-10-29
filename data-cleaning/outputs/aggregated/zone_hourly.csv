@@ -66669,7 +66669,7 @@ Date,floor,zone,ac_kW,light_kW,plug_kW,temp_C,rh_pct,lux,hour,weekday,is_weekend
 2018-08-02 19:00:00,2,2,3.81,0.25,0.05,27.79,60.42,0.53,19,Thursday,False,8,working day
 2018-08-02 20:00:00,2,2,3.42,0.0,0.05,28.11,59.04,0.0,20,Thursday,False,8,working day
 2018-08-02 21:00:00,2,2,3.5,0.0,0.05,28.25,58.6,0.0,21,Thursday,False,8,working day
-2018-08-02 22:00:00,2,2,3.45,0.0,0.05,28.27,58.63,0.0,22,Thursday,False,8,working day
+2018-08-02 22:00:00,2,2,3.46,0.0,0.05,28.27,58.63,0.0,22,Thursday,False,8,working day
 2018-08-02 23:00:00,2,2,3.52,0.0,0.05,28.39,58.69,0.0,23,Thursday,False,8,working day
 2018-08-03 00:00:00,2,2,6.72,0.0,0.05,28.47,58.59,0.0,0,Friday,False,8,working day
 2018-08-03 01:00:00,2,2,4.67,0.0,0.05,28.54,58.47,0.0,1,Friday,False,8,working day
@@ -68407,7 +68407,7 @@ Date,floor,zone,ac_kW,light_kW,plug_kW,temp_C,rh_pct,lux,hour,weekday,is_weekend
 2018-10-14 05:00:00,2,2,6.54,0.0,0.06,,,,5,Sunday,True,10,weekend
 2018-10-14 06:00:00,2,2,6.8,0.0,0.05,,,,6,Sunday,True,10,weekend
 2018-10-14 07:00:00,2,2,6.85,0.0,0.05,,,,7,Sunday,True,10,weekend
-2018-10-14 08:00:00,2,2,7.2,0.0,0.05,,,,8,Sunday,True,10,weekend
+2018-10-14 08:00:00,2,2,7.19,0.0,0.05,,,,8,Sunday,True,10,weekend
 2018-10-14 09:00:00,2,2,7.44,0.0,0.05,,,,9,Sunday,True,10,weekend
 2018-10-14 10:00:00,2,2,7.53,0.0,0.06,,,,10,Sunday,True,10,weekend
 2018-10-14 11:00:00,2,2,5.75,0.0,0.06,,,,11,Sunday,True,10,weekend
@@ -69006,7 +69006,7 @@ Date,floor,zone,ac_kW,light_kW,plug_kW,temp_C,rh_pct,lux,hour,weekday,is_weekend
 2018-11-08 04:00:00,2,2,6.62,0.0,0.01,,,,4,Thursday,False,11,working day
 2018-11-08 05:00:00,2,2,6.14,0.0,0.01,,,,5,Thursday,False,11,working day
 2018-11-08 06:00:00,2,2,6.42,0.08,0.03,,,,6,Thursday,False,11,working day
-2018-11-08 07:00:00,2,2,11.19,0.56,0.18,,,,7,Thursday,False,11,working day
+2018-11-08 07:00:00,2,2,11.2,0.56,0.18,,,,7,Thursday,False,11,working day
 2018-11-08 08:00:00,2,2,22.07,1.48,0.5,,,,8,Thursday,False,11,working day
 2018-11-08 09:00:00,2,2,22.57,1.45,0.55,,,,9,Thursday,False,11,working day
 2018-11-08 10:00:00,2,2,22.44,1.45,0.52,,,,10,Thursday,False,11,working day
@@ -75420,7 +75420,7 @@ Date,floor,zone,ac_kW,light_kW,plug_kW,temp_C,rh_pct,lux,hour,weekday,is_weekend
 2019-08-02 10:00:00,2,2,26.86,1.75,0.45,20.75,71.99,44.82,10,Friday,False,8,working day
 2019-08-02 11:00:00,2,2,29.04,1.68,0.38,20.7,72.11,46.67,11,Friday,False,8,working day
 2019-08-02 12:00:00,2,2,31.13,1.82,0.36,20.61,71.26,47.87,12,Friday,False,8,working day
-2019-08-02 13:00:00,2,2,32.06,2.06,0.44,,,,13,Friday,False,8,working day
+2019-08-02 13:00:00,2,2,32.07,2.06,0.44,,,,13,Friday,False,8,working day
 2019-08-02 14:00:00,2,2,32.06,2.38,0.63,20.64,68.99,45.98,14,Friday,False,8,working day
 2019-08-02 15:00:00,2,2,31.68,2.4,0.71,20.73,69.49,45.95,15,Friday,False,8,working day
 2019-08-02 16:00:00,2,2,30.95,1.95,0.32,20.63,69.73,29.92,16,Friday,False,8,working day
@@ -77027,7 +77027,7 @@ Date,floor,zone,ac_kW,light_kW,plug_kW,temp_C,rh_pct,lux,hour,weekday,is_weekend
 2019-10-08 09:00:00,2,2,25.5,1.87,0.42,21.65,73.62,44.87,9,Tuesday,False,10,working day
 2019-10-08 10:00:00,2,2,24.98,1.87,0.36,21.31,72.66,44.87,10,Tuesday,False,10,working day
 2019-10-08 11:00:00,2,2,28.68,1.88,0.32,21.09,72.75,44.92,11,Tuesday,False,10,working day
-2019-10-08 12:00:00,2,2,30.37,1.9,0.36,20.75,72.97,46.53,12,Tuesday,False,10,working day
+2019-10-08 12:00:00,2,2,30.38,1.9,0.36,20.75,72.97,46.53,12,Tuesday,False,10,working day
 2019-10-08 13:00:00,2,2,31.54,2.02,0.44,20.62,73.69,46.78,13,Tuesday,False,10,working day
 2019-10-08 14:00:00,2,2,31.46,1.86,0.44,20.54,74.23,43.05,14,Tuesday,False,10,working day
 2019-10-08 15:00:00,2,2,31.4,1.74,0.44,20.58,74.53,40.23,15,Tuesday,False,10,working day
@@ -77535,7 +77535,7 @@ Date,floor,zone,ac_kW,light_kW,plug_kW,temp_C,rh_pct,lux,hour,weekday,is_weekend
 2019-10-29 13:00:00,2,2,31.79,2.25,0.56,21.26,71.48,45.92,13,Tuesday,False,10,working day
 2019-10-29 14:00:00,2,2,32.54,1.98,0.53,21.24,70.84,45.02,14,Tuesday,False,10,working day
 2019-10-29 15:00:00,2,2,32.43,2.06,0.48,21.3,70.56,42.87,15,Tuesday,False,10,working day
-2019-10-29 16:00:00,2,2,31.59,2.14,0.38,21.22,70.96,29.52,16,Tuesday,False,10,working day
+2019-10-29 16:00:00,2,2,31.6,2.14,0.38,21.22,70.96,29.52,16,Tuesday,False,10,working day
 2019-10-29 17:00:00,2,2,7.91,1.34,0.14,23.25,67.76,19.92,17,Tuesday,False,10,working day
 2019-10-29 18:00:00,2,2,4.61,0.81,0.05,24.78,63.91,2.75,18,Tuesday,False,10,working day
 2019-10-29 19:00:00,2,2,4.29,0.0,0.05,25.32,63.36,0.0,19,Tuesday,False,10,working day
@@ -78091,7 +78091,7 @@ Date,floor,zone,ac_kW,light_kW,plug_kW,temp_C,rh_pct,lux,hour,weekday,is_weekend
 2019-11-21 17:00:00,2,2,7.09,0.78,0.25,22.11,63.58,20.25,17,Thursday,False,11,working day
 2019-11-21 18:00:00,2,2,3.64,0.42,0.11,23.74,61.0,8.28,18,Thursday,False,11,working day
 2019-11-21 19:00:00,2,2,3.63,0.03,0.05,,,,19,Thursday,False,11,working day
-2019-11-21 20:00:00,2,2,3.58,0.0,0.05,24.26,59.49,0.0,20,Thursday,False,11,working day
+2019-11-21 20:00:00,2,2,3.59,0.0,0.05,24.26,59.49,0.0,20,Thursday,False,11,working day
 2019-11-21 21:00:00,2,2,3.57,0.0,0.05,24.4,59.6,0.0,21,Thursday,False,11,working day
 2019-11-21 22:00:00,2,2,3.55,0.0,0.05,24.53,59.64,0.0,22,Thursday,False,11,working day
 2019-11-21 23:00:00,2,2,5.72,0.0,0.05,24.64,59.7,0.0,23,Thursday,False,11,working day

@@ -17,8 +17,15 @@ baseline/outputs/
 # Downloaded Open-Meteo ERA5 cache (regenerable from the baseline notebook)
 baseline/data/bangkok_era5_hourly_2018-2019.csv
 
-# Regenerated cleaning tables and interpolation provenance
-data-cleaning/outputs/analytics/
-data-cleaning/outputs/quality/
+# Preserve the six previously tracked cleaning tables at their new locations.
+# Additional regenerated outputs remain ignored.
+data-cleaning/outputs/aggregated/*
+!data-cleaning/outputs/aggregated/building_15min.csv
+!data-cleaning/outputs/aggregated/floor_15min.csv
+!data-cleaning/outputs/aggregated/zone_hourly.csv
+!data-cleaning/outputs/aggregated/daily_summary.csv
+data-cleaning/outputs/quality/*
+!data-cleaning/outputs/quality/data_quality.csv
+!data-cleaning/outputs/quality/removed_readings.csv
 # Regenerated lighting analytics
 analytics/lighting/outputs/

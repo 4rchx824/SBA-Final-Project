@@ -25,7 +25,7 @@ On Windows activate with `.venv\Scripts\Activate.ps1`. Select **Python (SBA)** i
 4. **Lighting assessment:** run [`analytics/lighting/lighting_assessment.ipynb`](analytics/lighting/lighting_assessment.ipynb). It delivers lighting–lux relationships, schedule patterns, Floor 2 comparisons, occupancy-related evidence, coverage limitations and a zone opportunity table.
 5. **Reduction scenarios:** use the shared input and opportunity table for conditional reductions, recomputed peaks, sensitivity and building coincidence. These scenarios are separate future deliverables.
 
-Do not skip cleaning or silently mix legacy `outputs/*.csv` snapshots with current `outputs/analytics/*.csv` tables. Generated tables/figures under the new output directories are ignored by Git; executed notebook results remain reviewable.
+Do not skip cleaning or silently mix legacy `outputs/*.csv` snapshots with current `outputs/aggregated/*.csv` tables. The six existing cleaning tables remain tracked under `outputs/aggregated/` and `outputs/quality/`. Large cleaned files, the interpolation log and generated lighting-analysis outputs remain ignored; executed notebook results remain reviewable.
 
 ## Lighting interpretation
 

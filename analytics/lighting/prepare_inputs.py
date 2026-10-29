@@ -30,8 +30,12 @@ def prepare_inputs():
     config_path = HERE / 'config.json'
     config = json.loads(config_path.read_text())
     clean_dir = clean_data_directory()
+    # Time-based aggregates and quality audits have separate canonical folders.
+    # Select these paths explicitly so legacy snapshots are never mixed into a run.
     support = ROOT / config['supporting_tables']
-    supporting_paths = [support / f'{name}.csv' for name in ['data_quality','daily_summary','zone_hourly','removed_readings']]
+    quality_dir = ROOT / config['quality_reports']
+    supporting_paths = [support / f'{name}.csv' for name in ['daily_summary','zone_hourly']]
+    supporting_paths += [quality_dir / f'{name}.csv' for name in ['data_quality','removed_readings']]
     baseline_paths = [ROOT / 'baseline' / 'outputs' / name for name in
                       ['lighting_zone_april_baseline.csv','lighting_floor2_april_baseline.csv','lighting_lux_sensitivity.csv']]
     for path in supporting_paths + baseline_paths:
@@ -83,7 +87,7 @@ def prepare_inputs():
     intervals['light_valid']=intervals.light_kW.notna()
     intervals['lux_valid']=intervals.lux.notna()
     intervals['paired_valid']=intervals.total_kW.notna() & intervals.light_kW.notna() & intervals.lux.notna()
-    quality_path = clean_dir.parent / 'quality' / 'interpolated_runs.csv'
+    quality_path = quality_dir / 'interpolated_runs.csv'
     # Upstream provenance is optional; never invent observed-only status if unavailable.
     if quality_path.exists():
         intervals = add_interpolation_fractions(intervals,quality_path)

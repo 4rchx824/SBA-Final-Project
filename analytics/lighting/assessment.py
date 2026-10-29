@@ -117,7 +117,8 @@ def run_assessment():
     coverage=coverage_table(intervals)
     matched_bands,matched_summary=matched_day_night(intervals,config)
     baseline=pd.read_csv(ROOT/'baseline'/'outputs'/'lighting_zone_april_baseline.csv')
-    quality=pd.read_csv(ROOT/config['supporting_tables']/'data_quality.csv')
+    # Quality warnings are audit metadata, not aggregated measurements.
+    quality=pd.read_csv(ROOT/config['quality_reports']/'data_quality.csv')
     quality_notes=quality.loc[quality.unit.eq('lux')].groupby(['floor','zone']).note.apply(lambda x:'; '.join(x.dropna().unique()))
     opportunities=[]
     for (floor,zone),g in april.groupby(['floor','zone']):

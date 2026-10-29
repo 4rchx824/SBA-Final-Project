@@ -4,12 +4,12 @@ This folder contains the lighting assessment: lighting–lux relationships, oper
 
 ## Run order
 
-1. Reuse `data-cleaning/outputs/clean/` and the regenerated supporting set `data-cleaning/outputs/analytics/`. Run cleaning only if missing or intentionally refreshing the snapshot.
+1. Reuse `data-cleaning/outputs/clean/` and the regenerated tables in `data-cleaning/outputs/aggregated/` and reports in `data-cleaning/outputs/quality/`. Run cleaning only if missing or intentionally refreshing the snapshot.
 2. Run the original `baseline/lighting_peak_baseline.ipynb` if its outputs are missing or stale. Its calculations/source remain unchanged.
 3. From the repository root run `python analytics/lighting/prepare_inputs.py` to freeze `outputs/zone_15min.csv` and `outputs/run_manifest.json`.
 4. Run [`lighting_assessment.ipynb`](lighting_assessment.ipynb) top-to-bottom. It exports tables, selected figures, and [`lighting_findings.md`](lighting_findings.md).
 
-All 33 zones remain represented. March 6–31 calibration and April evaluation preserve 720/880 weekday operating-window intervals and 2,880 all-hours April intervals per zone. Timestamps use Bangkok local time. The adapter reconciles original baseline April daytime peaks and verifies unique joins; it never mixes legacy `outputs/*.csv` snapshots with regenerated `outputs/analytics/*.csv` tables.
+All 33 zones remain represented. March 6–31 calibration and April evaluation preserve 720/880 weekday operating-window intervals and 2,880 all-hours April intervals per zone. Timestamps use Bangkok local time. The adapter reconciles original baseline April daytime peaks and verifies unique joins; it never mixes legacy `outputs/*.csv` snapshots with regenerated `outputs/aggregated/*.csv` tables.
 
 ## Deliverables
 
