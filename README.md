@@ -22,8 +22,8 @@ On Windows activate with `.venv\Scripts\Activate.ps1`. Select **Python (SBA)** i
 1. **Clean:** run [`data-cleaning/main.ipynb`](data-cleaning/main.ipynb) from `data-cleaning/` only if outputs are missing or intentionally refreshing. It exports 14 cleaned files, supporting tables and interpolation provenance.
 2. **Baseline:** run the original [`baseline/lighting_peak_baseline.ipynb`](baseline/lighting_peak_baseline.ipynb) for Q1. Its source/calculations remain unchanged. It reports March demand p95, April zone peaks, lighting contribution and ambient-lux diagnostics. Use the separate humidity baseline for Q2.
 3. **Shared assessment input:** run `python analytics/lighting/prepare_inputs.py`. This adapter reuses the baseline interval builder, adds calendar/schema/completeness fields and reconciles all 33 April daytime peaks with the saved baseline.
-4. **Person 1 assessment:** run [`analytics/lighting/lighting_assessment.ipynb`](analytics/lighting/lighting_assessment.ipynb). It delivers lighting–lux relationships, schedule patterns, Floor 2 comparisons, occupancy-related evidence, coverage limitations and a zone opportunity table.
-5. **Person 2 scenarios:** your collaborator uses the shared input and opportunity table for conditional reductions, recomputed peaks, sensitivity and building coincidence. These scenarios are separate future deliverables.
+4. **Lighting assessment:** run [`analytics/lighting/lighting_assessment.ipynb`](analytics/lighting/lighting_assessment.ipynb). It delivers lighting–lux relationships, schedule patterns, Floor 2 comparisons, occupancy-related evidence, coverage limitations and a zone opportunity table.
+5. **Reduction scenarios:** use the shared input and opportunity table for conditional reductions, recomputed peaks, sensitivity and building coincidence. These scenarios are separate future deliverables.
 
 Do not skip cleaning or silently mix legacy `outputs/*.csv` snapshots with current `outputs/analytics/*.csv` tables. Generated tables/figures under the new output directories are ignored by Git; executed notebook results remain reviewable.
 

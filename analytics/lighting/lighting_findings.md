@@ -1,6 +1,6 @@
-# Lighting findings — Person 1 assessment
+# Lighting assessment findings
 
-This assessment addresses lighting contribution, schedules, power–lux patterns and occupancy-related evidence. Conditional reduction simulations and coincident peak impacts belong to Person 2.
+This assessment addresses lighting contribution, schedules, power–lux patterns and occupancy-related evidence. Conditional reduction simulations and coincident peak impacts are handled in the reduction-scenario analysis.
 
 ## Floor 2 findings
 
@@ -28,11 +28,11 @@ Outside-hours use is measured over available lighting intervals, not estimated a
 - Compare daytime/nighttime lux only at supported similar-power bands. Daylight, blinds and zone geometry confound the association; no lighting-off counterfactual is observed.
 - Validate occupied task-plane lux and occupant feedback before a dimming trial. Ceiling ambient lux and the illustrative 500-lux reference do not establish comfort.
 
-## Handoff to Person 2
+## Handoff to reduction scenarios
 
 Use `outputs/zone_15min.csv`, `outputs/lighting_opportunities.csv`, `config.json` and `outputs/run_manifest.json`. The original baseline remains unchanged and the adapter reconciles its April daytime peaks for all 33 zones.
 
-The shared table retains baseline-compatible values and adds `power_complete`/`paired_complete` for strict intervals. Complete after cleaning may include interpolation. Repair-free flags require the upstream interpolation audit and are not inferred from non-null counts. Missing comfort evidence must not be treated as automatic valid zero savings. Scenario percentages, peak shifts, sensitivity and building coincidence remain Person 2’s deliverables.
+The shared table retains baseline-compatible values and adds `power_complete`/`paired_complete` for strict intervals. Complete after cleaning may include interpolation. Repair-free flags require the upstream interpolation audit and are not inferred from non-null counts. Missing comfort evidence must not be treated as automatic valid zero savings. Scenario percentages, peak shifts, sensitivity and building coincidence remain part of the reduction-scenario analysis.
 
 ## Evidence boundaries
 
