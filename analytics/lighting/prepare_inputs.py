@@ -26,6 +26,36 @@ def sha256(path):
     return digest.hexdigest()
 
 
+def zone_minute_support(data, zone):
+    """Aggregate components on common cleaned-minute support for safe subtraction."""
+    columns = [c for c in data if c.startswith(f'z{zone}_')]
+    power = [c for c in columns if c.endswith('(kW)')]
+    lights = [c for c in power if '_Light' in c]
+    plugs = [c for c in power if '_Plug' in c]
+    lux = [c for c in columns if c.endswith('(lux)')]
+    empty = pd.Series(np.nan, index=data.index)
+    total = data[power].sum(axis=1, min_count=len(power))
+    light = data[lights].sum(axis=1, min_count=len(lights)) if lights else empty
+    plug = data[plugs].sum(axis=1, min_count=len(plugs)) if plugs else empty
+    ambient = data[lux].mean(axis=1, skipna=False) if lux else empty
+    power_valid = total.notna()
+    joint_valid = power_valid & ambient.notna()
+    plug_coverage = plug.notna().resample('15min').sum()/15
+    power_coverage = power_valid.resample('15min').sum()/15
+    joint_coverage = joint_valid.resample('15min').sum()/15
+    item = pd.DataFrame(dict(
+        plug_kW=plug.resample('15min').mean().where(plug_coverage >= .8),
+        plug_coverage=plug_coverage, power_complete=power_coverage.eq(1),
+        paired_complete=joint_coverage.eq(1), common_paired_coverage=joint_coverage))
+    # A missing AC minute must also be excluded from the lighting component.
+    for name, values in [('total', total), ('light', light)]:
+        item[f'common_power_{name}_kW'] = values.where(power_valid).resample('15min').mean().where(power_coverage >= .8)
+        item[f'common_paired_{name}_kW'] = values.where(joint_valid).resample('15min').mean().where(joint_coverage >= .8)
+    item['common_paired_lux'] = ambient.where(joint_valid).resample('15min').mean().where(joint_coverage >= .8)
+    item['has_lux_sensor'], item['has_plug_meter'] = bool(lux), bool(plugs)
+    return item
+
+
 def prepare_inputs():
     config_path = HERE / 'config.json'
     config = json.loads(config_path.read_text())
@@ -50,20 +80,7 @@ def prepare_inputs():
         data = read_clean_file(clean_dir / f'2019Floor{floor}.csv', re.compile(r'z\d+_(?:AC\d+|Light|Plug)\(kW\)|z\d+_S1\(lux\)'))
         data = data.loc[config['calibration_start']:pd.Timestamp(config['evaluation_end'])-pd.Timedelta(minutes=1)]
         for zone in sorted(intervals.loc[intervals.floor.eq(floor), 'zone'].unique()):
-            prefix = f'z{zone}_'
-            power = [c for c in data if c.startswith(prefix) and c.endswith('(kW)')]
-            plugs = [c for c in power if '_Plug' in c]
-            lux = [c for c in data if c.startswith(prefix) and c.endswith('(lux)')]
-            total_valid = data[power].notna().all(axis=1)
-            lux_valid = data[lux].notna().all(axis=1) if lux else pd.Series(False,index=data.index)
-            plug = data[plugs].sum(axis=1,min_count=len(plugs)) if plugs else pd.Series(np.nan,index=data.index)
-            coverage = plug.notna().resample('15min').sum()/15
-            item = pd.DataFrame({'plug_kW':plug.resample('15min').mean().where(coverage >= .8),
-                                 'plug_coverage':coverage,
-                                 'power_complete':total_valid.resample('15min').sum().eq(15),
-                                 'paired_complete':(total_valid & lux_valid).resample('15min').sum().eq(15)})
-            item['has_lux_sensor'] = bool(lux)
-            item['has_plug_meter'] = bool(plugs)
+            item = zone_minute_support(data, zone)
             item['floor'],item['zone'] = floor,zone
             pieces.append(item.rename_axis('Date').reset_index())
     intervals = intervals.merge(pd.concat(pieces,ignore_index=True),on=['Date','floor','zone'],validate='one_to_one')

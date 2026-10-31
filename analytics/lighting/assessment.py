@@ -76,7 +76,7 @@ def coverage_table(intervals):
     return pd.DataFrame(rows)
 
 
-def matched_day_night(intervals,config):
+def matched_day_night(intervals,config,working_days_only=False):
     """Compare ambient lux within March-derived lighting-power bands, month by month.
 
     Require both day and night support within a band. This is descriptive;
@@ -86,6 +86,9 @@ def matched_day_night(intervals,config):
     for (floor,zone),group in intervals.groupby(['floor','zone']):
         march=group.loc[group.month.eq('2019-03'),'light_kW'].dropna()
         edges=np.unique(march.quantile(np.linspace(0,1,config['matched_power_bins']+1)).to_numpy())
+        # Hold March bands fixed so the sensitivity changes calendar mix, not calibration.
+        if working_days_only:
+            group=group.loc[group.day_type.eq('working day')]
         for month,g in group.groupby('month'):
             n_bins=0
             if len(edges)>=3 and g.has_lux_sensor.iloc[0]:
@@ -116,6 +119,8 @@ def run_assessment():
     schedule=schedule_table(april)
     coverage=coverage_table(intervals)
     matched_bands,matched_summary=matched_day_night(intervals,config)
+    # Inferred closures/weekends can confound day/night comparisons; retain the original and show a sensitivity.
+    _, working_summary = matched_day_night(intervals,config,working_days_only=True)
     baseline=pd.read_csv(ROOT/'baseline'/'outputs'/'lighting_zone_april_baseline.csv')
     # Quality warnings are audit metadata, not aggregated measurements.
     quality=pd.read_csv(ROOT/config['quality_reports']/'data_quality.csv')
@@ -190,7 +195,7 @@ def run_assessment():
     out=HERE/'outputs'
     for filename,table in [('lighting_opportunities',opportunities),('lighting_schedule',schedule),('lighting_coverage',coverage),
                            ('lighting_activity_thresholds',thresholds),('lighting_activity_sensitivity',sensitivity),
-                           ('lighting_activity_intervals',april),('lighting_matched_lux_bands',matched_bands),('lighting_matched_lux_summary',matched_summary)]:
+                           ('lighting_activity_intervals',april),('lighting_matched_lux_bands',matched_bands),('lighting_matched_lux_summary',matched_summary),('lighting_matched_lux_working_days',working_summary)]:
         table.to_csv(out/(filename+'.csv'),index=False)
     from prepare_inputs import sha256
     receipt={'shared_input_manifest': 'run_manifest.json',
@@ -200,7 +205,7 @@ def run_assessment():
     (out/'assessment_manifest.json').write_text(json.dumps(receipt,indent=2)+'\n')
     return dict(intervals=intervals,april=april,opportunities=opportunities,schedule=schedule,coverage=coverage,
                 thresholds=thresholds,sensitivity=sensitivity,matched_bands=matched_bands,
-                matched_summary=matched_summary,manifest=manifest,output=out)
+                matched_summary=matched_summary,working_day_matched_summary=working_summary,manifest=manifest,output=out)
 
 
 def plot_profiles(results):

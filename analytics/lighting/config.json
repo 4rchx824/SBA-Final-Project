@@ -1,5 +1,5 @@
 {
-  "scope": "Lighting assessment; reduction scenarios are a separate analysis",
+  "scope": "Lighting assessment and conditional reduction scenarios",
   "calibration_start": "2019-03-06",
   "evaluation_start": "2019-04-01",
   "evaluation_end": "2019-05-01",
@@ -27,6 +27,32 @@
   "primary_activity_persistence_minutes": 60,
   "matched_power_bins": 10,
   "minimum_matched_bin_count": 8,
-  "note": "All operating/activity gates are exploratory assumptions; 500 lux is not a comfort or occupancy eligibility rule. Scenario settings belong to the separate reduction-scenario analysis.",
-  "quality_reports": "data-cleaning/outputs/quality"
+  "note": "Operating states are activity proxies, not occupancy labels. Scenario targets/caps and proportional lux response are illustrative, not approved controls or demonstrated comfort-safe savings.",
+  "quality_reports": "data-cleaning/outputs/quality",
+  "scenarios": {
+    "lux_targets": [
+      100,
+      150,
+      200,
+      300,
+      500
+    ],
+    "power_reduction_caps": [
+      0,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "period_coverage_gates": [
+      0.8,
+      0.95
+    ],
+    "policies": [
+      "strict",
+      "common_minutes"
+    ],
+    "primary_target_lux": 500,
+    "primary_cap": 0.2,
+    "primary_period_coverage_gate": 0.8
+  }
 }

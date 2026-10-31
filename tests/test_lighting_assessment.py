@@ -84,5 +84,16 @@ class LightingAssessmentTests(unittest.TestCase):
         self.assertTrue(bands.empty)
         self.assertTrue(summary.median_matched_day_minus_night_lux.isna().all())
 
+    def test_working_day_sensitivity_keeps_original_march_power_bands(self):
+        power=np.r_[np.tile([0.,1.,2.,3.],80),np.tile([100.,101.,102.,103.],80)]
+        hours=np.tile([12]*4+[22]*4,80)
+        data=pd.DataFrame(dict(floor=2,zone=1,month='2019-03',light_kW=power,
+                               lux=np.where(hours==12,10.,0.),hour=hours,has_lux_sensor=True,
+                               day_type=['working day']*320+['weekend']*320))
+        all_bands,_=matched_day_night(data,CONFIG)
+        working_bands,summary=matched_day_night(data,CONFIG,working_days_only=True)
+        self.assertEqual(summary.matched_power_bands.iloc[0],2)
+        self.assertTrue(set(working_bands.power_band).issubset(set(all_bands.power_band)))
+
 if __name__=='__main__':
     unittest.main()

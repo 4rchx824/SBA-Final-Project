@@ -23,7 +23,7 @@ On Windows activate with `.venv\Scripts\Activate.ps1`. Select **Python (SBA)** i
 2. **Baseline:** run the original [`baseline/lighting_peak_baseline.ipynb`](baseline/lighting_peak_baseline.ipynb) for Q1. Its source/calculations remain unchanged. It reports March demand p95, April zone peaks, lighting contribution and ambient-lux diagnostics. Use the separate humidity baseline for Q2.
 3. **Shared assessment input:** run `python analytics/lighting/prepare_inputs.py`. This adapter reuses the baseline interval builder, adds calendar/schema/completeness fields and reconciles all 33 April daytime peaks with the saved baseline.
 4. **Lighting assessment:** run [`analytics/lighting/lighting_assessment.ipynb`](analytics/lighting/lighting_assessment.ipynb). It delivers lighting–lux relationships, schedule patterns, Floor 2 comparisons, occupancy-related evidence, coverage limitations and a zone opportunity table.
-5. **Reduction scenarios:** use the shared input and opportunity table for conditional reductions, recomputed peaks, sensitivity and building coincidence. These scenarios are separate future deliverables.
+5. **Reduction scenarios:** run [`analytics/lighting/lighting_scenarios.ipynb`](analytics/lighting/lighting_scenarios.ipynb) for conditional reductions, no-change checks, recomputed peaks, sensitivity and building coincidence. Read the [combined findings](analytics/lighting/lighting_combined_findings.md). Comfort and independent main-meter validation still require field measurements.
 
 Do not skip cleaning or silently mix legacy `outputs/*.csv` snapshots with current `outputs/aggregated/*.csv` tables. The six existing cleaning tables remain tracked under `outputs/aggregated/` and `outputs/quality/`. Large cleaned files, the interpolation log and generated lighting-analysis outputs remain ignored; executed notebook results remain reviewable.
 
@@ -35,6 +35,8 @@ Do not skip cleaning or silently mix legacy `outputs/*.csv` snapshots with curre
 - The opportunity table reports evidence and investigations, not approved reduction fractions or realised savings. Task-plane measurements and local occupant feedback remain necessary.
 
 See the [supplied workload instructions](analytics/lighting/README_analytics.txt), [assessment run guide](analytics/lighting/README.md), [business findings](analytics/lighting/lighting_findings.md), and [cleaning review](data-cleaning/REVIEW.md).
+
+See the [lighting revision notes](analytics/lighting/REVISION_NOTES.md) for changes, validation checks and study limitations.
 
 ## Checks
 
