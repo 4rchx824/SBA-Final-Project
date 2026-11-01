@@ -27,4 +27,6 @@ The retained humidity baseline is a separate workflow. It uses the Open-Meteo ER
 
 ## Interpretation
 
-Primary lighting hours are weekdays 08:00-17:00, with 08:00-18:00 tested separately. The original baseline retains 08:00-18:00. Ambient lux is not task-plane illuminance; activity proxies are not attendance labels. Zero conditional reduction does not establish zero physical savings potential. Comfort-preserving savings and independent building-wide impact remain unverified.
+Weekdays 08:00–17:00 are used as an assumed office schedule, supported by published university office hours and observed demand patterns. An 08:00–18:00 sensitivity analysis assesses dependence on this assumption. Neither schedule represents measured occupancy. See the [schedule definitions and source caveat](analytics/PROCESS.md#schedule-definitions).
+
+The original baseline retains 08:00–18:00; scheduling and activity investigation covers all 24 hours. Ambient lux is not task-plane illuminance; activity proxies are not attendance labels. Zero conditional reduction does not establish zero physical savings potential. Comfort-preserving savings and independent building-wide impact remain unverified.
