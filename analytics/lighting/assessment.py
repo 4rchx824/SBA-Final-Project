@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from prepare_inputs import HERE, ROOT, load_inputs
+from prepare_inputs import HERE, ROOT, OUTPUT, load_inputs
 from activity_states import fit_states, classify
+from schedules import operating_mask, schedule_settings, label
 
 
 def calibrate_activity(intervals, config):
@@ -76,7 +77,7 @@ def coverage_table(intervals):
     return pd.DataFrame(rows)
 
 
-def matched_day_night(intervals,config):
+def matched_day_night(intervals,config,working_days_only=False):
     """Compare ambient lux within March-derived lighting-power bands, month by month.
 
     Require both day and night support within a band. This is descriptive;
@@ -86,11 +87,14 @@ def matched_day_night(intervals,config):
     for (floor,zone),group in intervals.groupby(['floor','zone']):
         march=group.loc[group.month.eq('2019-03'),'light_kW'].dropna()
         edges=np.unique(march.quantile(np.linspace(0,1,config['matched_power_bins']+1)).to_numpy())
+        # Hold March bands fixed so the sensitivity changes calendar mix, not calibration.
+        if working_days_only:
+            group=group.loc[group.day_type.eq('working day')]
         for month,g in group.groupby('month'):
             n_bins=0
             if len(edges)>=3 and g.has_lux_sensor.iloc[0]:
                 g=g.loc[g.light_kW.notna()&g.lux.notna()].copy()
-                g['period']=np.select([g.hour.between(8,17),g.hour.ge(20)|g.hour.lt(6)],['day','night'],default='twilight')
+                g['period']=np.select([g.hour.ge(config['operating_start_hour']) & g.hour.lt(config['operating_end_hour']),g.hour.ge(20)|g.hour.lt(6)],['day','night'],default='twilight')
                 g['band']=pd.cut(g.light_kW,edges,include_lowest=True)
                 for band,b in g.groupby('band',observed=True):
                     day=b.loc[b.period.eq('day')]; night=b.loc[b.period.eq('night')]
@@ -109,14 +113,35 @@ def matched_day_night(intervals,config):
     return pd.DataFrame(bins_rows,columns=cols),pd.DataFrame(summary_rows)
 
 
+def schedule_comparison(april, config):
+    """Same observations under each assumed window; reclassification is not savings."""
+    rows = []
+    for schedule_id, settings in schedule_settings(config):
+        for (floor, zone), group in april.groupby(['floor', 'zone']):
+            operating = operating_mask(group.Date, settings)
+            for period, mask in [('operating', operating), ('outside', ~operating),
+                                 ('transition', group.is_transition_hour.to_numpy())]:
+                values = group.loc[mask, 'light_kW']
+                rows.append(dict(floor=floor, zone=zone, schedule_id=schedule_id,
+                                 operating_window=label(settings), period=period,
+                                 expected_intervals=len(values), valid_intervals=int(values.notna().sum()),
+                                 coverage_pct=100*values.notna().mean(),
+                                 lighting_kWh=values.sum(min_count=1)/4,
+                                 mean_lighting_kW=values.mean()))
+    return pd.DataFrame(rows)
+
+
 def run_assessment():
     intervals,manifest=load_inputs(); config=manifest['settings']
     thresholds=calibrate_activity(intervals,config)
     april=assess_activity(intervals,thresholds,config['primary_activity_persistence_minutes'])
     schedule=schedule_table(april)
+    schedule_sensitivity=schedule_comparison(april,config)
     coverage=coverage_table(intervals)
     matched_bands,matched_summary=matched_day_night(intervals,config)
-    baseline=pd.read_csv(ROOT/'baseline'/'outputs'/'lighting_zone_april_baseline.csv')
+    # Inferred closures/weekends can confound day/night comparisons; retain the original and show a sensitivity.
+    _, working_summary = matched_day_night(intervals,config,working_days_only=True)
+    baseline=pd.read_csv(ROOT/'outputs'/'baseline'/'lighting_zone_april_baseline.csv')
     # Quality warnings are audit metadata, not aggregated measurements.
     quality=pd.read_csv(ROOT/config['quality_reports']/'data_quality.csv')
     quality_notes=quality.loc[quality.unit.eq('lux')].groupby(['floor','zone']).note.apply(lambda x:'; '.join(x.dropna().unique()))
@@ -148,7 +173,11 @@ def run_assessment():
             evidence='paired power/ambient evidence; comfort unvalidated'
             action='Audit schedules and validate task-plane lighting; no approved dimming fraction'
         row=dict(floor=floor,zone=zone,april_valid_period_lighting_kWh=light_energy,
+                 operating_window=label(config), original_baseline_window='08:00-18:00',
                  outside_assumed_hours_lighting_kWh=outside_energy,
+                 transition_lighting_kWh=g.loc[g.is_transition_hour,'light_kW'].sum(min_count=1)/4,
+                 transition_valid_intervals=int(g.loc[g.is_transition_hour,'light_kW'].notna().sum()),
+                 transition_expected_intervals=int(g.is_transition_hour.sum()),
                  outside_assumed_hours_energy_share_pct=100*outside_energy/light_energy if light_energy>0 else np.nan,
                  weekday_outside_lighting_kWh=g.loc[g.schedule_segment.eq('weekday outside hours'),'light_kW'].sum(min_count=1)/4,
                  weekend_lighting_kWh=g.loc[g.schedule_segment.eq('weekend'),'light_kW'].sum(min_count=1)/4,
@@ -187,10 +216,10 @@ def run_assessment():
             grouped['persistence_minutes']=minutes; grouped['boundary_shift_fraction']=shift
             sensitivity.append(grouped.reset_index())
     sensitivity=pd.concat(sensitivity,ignore_index=True)
-    out=HERE/'outputs'
-    for filename,table in [('lighting_opportunities',opportunities),('lighting_schedule',schedule),('lighting_coverage',coverage),
+    out=OUTPUT
+    for filename,table in [('lighting_opportunities',opportunities),('lighting_schedule',schedule),('lighting_schedule_comparison',schedule_sensitivity),('lighting_coverage',coverage),
                            ('lighting_activity_thresholds',thresholds),('lighting_activity_sensitivity',sensitivity),
-                           ('lighting_activity_intervals',april),('lighting_matched_lux_bands',matched_bands),('lighting_matched_lux_summary',matched_summary)]:
+                           ('lighting_activity_intervals',april),('lighting_matched_lux_bands',matched_bands),('lighting_matched_lux_summary',matched_summary),('lighting_matched_lux_working_days',working_summary)]:
         table.to_csv(out/(filename+'.csv'),index=False)
     from prepare_inputs import sha256
     receipt={'shared_input_manifest': 'run_manifest.json',
@@ -198,9 +227,9 @@ def run_assessment():
              'activity_source_sha256': sha256(HERE/'activity_states.py'),
              'scope': 'Descriptive lighting assessment; no reduction scenarios'}
     (out/'assessment_manifest.json').write_text(json.dumps(receipt,indent=2)+'\n')
-    return dict(intervals=intervals,april=april,opportunities=opportunities,schedule=schedule,coverage=coverage,
+    return dict(intervals=intervals,april=april,opportunities=opportunities,schedule=schedule,schedule_comparison=schedule_sensitivity,coverage=coverage,
                 thresholds=thresholds,sensitivity=sensitivity,matched_bands=matched_bands,
-                matched_summary=matched_summary,manifest=manifest,output=out)
+                matched_summary=matched_summary,working_day_matched_summary=working_summary,manifest=manifest,output=out)
 
 
 def plot_profiles(results):
@@ -209,7 +238,9 @@ def plot_profiles(results):
     fig,axes=plt.subplots(2,2,figsize=(12,7),layout='constrained')
     for zone,ax in zip(range(1,5),axes.flat):
         profile=g.loc[zone]
-        ax.axvspan(8,18,color='#eeeeee',label='Assumed operating window')
+        settings=results['manifest']['settings']
+        ax.axvspan(settings['operating_start_hour'],settings['operating_end_hour'],color='#eeeeee',label='Assumed operating window')
+        ax.axvspan(settings['transition_start_hour'],settings['transition_end_hour'],color='#f8e5d2',label='Transition; attendance unknown')
         ax.plot(profile.index,profile.total_kW,color='#2878b5',label='Recorded total')
         ax.plot(profile.index,profile.light_kW,color='#c56624',label='Lighting')
         ax.set(title=f'F2 Z{zone}: average working-day profile',xlabel='Bangkok hour',ylabel='Mean demand (kW)',xlim=(0,23),ylim=(0,None))
@@ -220,10 +251,10 @@ def plot_profiles(results):
 
 def plot_schedule(results):
     data=results['schedule'].query('floor == 2').pivot(index='zone',columns='schedule_segment',values='valid_period_lighting_kWh')
-    order=['weekday operating','weekday outside hours','weekend','inferred closure']
+    order=['weekday operating','weekday transition','weekday outside hours','weekend','inferred closure']
     data=data.reindex(columns=order)
     fig,ax=plt.subplots(figsize=(11,4),layout='constrained')
-    data.plot.barh(stacked=True,ax=ax,color=['#2878b5','#c56624','#809367','#aaaaaa'])
+    data.plot.barh(stacked=True,ax=ax,color=['#2878b5','#e9b87c','#c56624','#809367','#aaaaaa'])
     ax.set(title='Floor 2: April lighting energy by schedule context',xlabel='Lighting energy over valid intervals (kWh)',ylabel='Zone')
     ax.legend(fontsize=8,loc='upper left',bbox_to_anchor=(1,1))
     fig.savefig(results['output']/'lighting_assessment_figures'/'floor2_schedule_energy.png',dpi=140)
@@ -232,12 +263,13 @@ def plot_schedule(results):
 
 def plot_lux(results):
     data=results['intervals'].query('floor == 2')
+    config=results['manifest']['settings']
     fig,axes=plt.subplots(2,2,figsize=(12,8),layout='constrained')
     for zone,ax in zip(range(1,5),axes.flat):
         for month,marker in [('2019-03','o'),('2019-04','x')]:
             for day,color in [(True,'#c56624'),(False,'#2878b5')]:
                 g=data.loc[data.zone.eq(zone)&data.month.eq(month)&data.lux.notna()&data.light_kW.notna()]
-                g=g.loc[g.hour.between(8,17)] if day else g.loc[g.hour.ge(20)|g.hour.lt(6)]
+                g=g.loc[g.hour.ge(config['operating_start_hour']) & g.hour.lt(config['operating_end_hour'])] if day else g.loc[g.hour.ge(20)|g.hour.lt(6)]
                 ax.scatter(g.light_kW,g.lux,s=7,alpha=.25,color=color,marker=marker,label=f'{"Mar" if month.endswith("03") else "Apr"} {"day" if day else "night"}')
         ax.set(title=f'F2 Z{zone}: lighting power versus ambient lux',xlabel='Lighting (kW)',ylabel='Ceiling ambient lux')
         ax.legend(fontsize=8)
@@ -250,7 +282,7 @@ def plot_lux(results):
         for month in ['2019-03','2019-04']:
             for daytime in [True,False]:
                 part=g.loc[g.month.eq(month)]
-                part=part.loc[part.hour.between(8,17)] if daytime else part.loc[part.hour.ge(20)|part.hour.lt(6)]
+                part=part.loc[part.hour.ge(config['operating_start_hour']) & part.hour.lt(config['operating_end_hour'])] if daytime else part.loc[part.hour.ge(20)|part.hour.lt(6)]
                 values.append(part.lux.dropna().to_numpy()); labels.append(f'{"Mar" if month.endswith("03") else "Apr"} {"day" if daytime else "night"}')
         ax.boxplot(values,showfliers=False)
         ax.set_xticks(range(1,5),labels)
@@ -277,30 +309,3 @@ def plot_activity(results):
     fig.suptitle('Occupancy-related audit evidence; no measured vacancy labels')
     fig.savefig(results['output']/'lighting_assessment_figures'/'floor2_activity_evidence.png',dpi=140)
     plt.show()
-
-
-def write_findings(results):
-    f2=results['opportunities'].query('floor == 2').sort_values('zone')
-    lines=['# Lighting assessment findings','',
-           'This assessment addresses lighting contribution, schedules, power–lux patterns and occupancy-related evidence. Conditional reduction simulations and coincident peak impacts are handled in the reduction-scenario analysis.','',
-           '## Floor 2 findings','',
-           '| Zone | Lighting at daytime peak (%) | Outside-hours lighting (kWh) | Outside-hours energy share (%) | Activity mismatch (h) | Unknown activity (h) |',
-           '|---|---:|---:|---:|---:|---:|']
-    for r in f2.itertuples():
-        fmt=lambda x:'Unknown' if pd.isna(x) else f'{x:.2f}'
-        lines.append(f'| {r.zone} | {fmt(r.lighting_share_at_peak_pct)} | {fmt(r.outside_assumed_hours_lighting_kWh)} | {fmt(r.outside_assumed_hours_energy_share_pct)} | {fmt(r.activity_mismatch_hours)} | {fmt(r.unknown_activity_hours)} |')
-    z1=f2.loc[f2.zone.eq(1)].iloc[0]
-    z3=f2.loc[f2.zone.eq(3)].iloc[0]
-    lines += ['', f'Zone 1 has {z1.lighting_kW_at_peak:.2f} kW of lighting at its daytime demand peak, compared with {z3.lighting_kW_at_peak:.2f} kW in Zone 3. Zone 3’s higher lighting share ({z3.lighting_share_at_peak_pct:.2f}%) therefore does not imply a larger absolute peak opportunity.',
-              '', f'Zone 3 uses {z3.outside_assumed_hours_lighting_kWh:.2f} kWh outside assumed hours ({z3.outside_assumed_hours_energy_share_pct:.2f}% of recorded lighting energy). Its stricter activity rule flags {z3.activity_mismatch_hours:.2f} hours. Prioritise a circuit-use and attendance audit; do not label all outside-hours energy as avoidable.',
-              '', 'Matched-power lux estimates and support counts are exported by zone/month in `outputs/lighting_matched_lux_summary.csv`; band counts and residual power differences are inspectable in `outputs/lighting_matched_lux_bands.csv`.']
-    lines+=['','Outside-hours use is measured over available lighting intervals, not estimated avoidable use. The schedule assumes weekdays 08:00–18:00; research/cleaning/security use may be legitimate. Inferred closures are energy-derived context, not attendance labels.','',
-            '## Interpretation and recommendations','',
-            '- Compare lighting at each zone’s own peak with actual scheduling evidence. Lighting share is an accounting contribution, not an achievable reduction.','- Floor 2 Zones 1 and 2 show no sustained lighting-high/low-plug mismatch under the primary rule. Retain their existing lighting until attendance and task needs justify changes.','- Floor 2 Zone 3 has a small mismatch signal. Validate its plug standby pattern and circulation/task function before calling it vacancy or waste.','- Floor 2 Zone 4 has almost constant plug load, so its activity assessment stays unknown. Obtain independent attendance evidence rather than lowering a threshold to force a result.','- Compare daytime/nighttime lux only at supported similar-power bands. Daylight, blinds and zone geometry confound the association; no lighting-off counterfactual is observed.','- Validate occupied task-plane lux and occupant feedback before a dimming trial. Ceiling ambient lux and the illustrative 500-lux reference do not establish comfort.','',
-            '## Handoff to reduction scenarios','',
-            'Use `outputs/zone_15min.csv`, `outputs/lighting_opportunities.csv`, `config.json` and `outputs/run_manifest.json`. The original baseline remains unchanged and the adapter reconciles its April daytime peaks for all 33 zones.','',
-            'The shared table retains baseline-compatible values and adds `power_complete`/`paired_complete` for strict intervals. Complete after cleaning may include interpolation. Repair-free flags require the upstream interpolation audit and are not inferred from non-null counts. Missing comfort evidence must not be treated as automatic valid zero savings. Scenario percentages, peak shifts, sensitivity and building coincidence remain part of the reduction-scenario analysis.','',
-            '## Evidence boundaries','',
-            'The Thai thermal-comfort/glare study motivates local comfort surveys and separate thermal/visual assessment; it does not validate occupancy inference from lux. Its DGP scale cannot replace a lux threshold. The study’s seven Bangkok office buildings and window-facing occupants are not ground truth for Chamchuri 5.','',
-            'Sources: [CU-BEMS](https://doi.org/10.1038/s41597-020-00582-3), [Chaloeytoy & Ichinose (2020)](https://digital.car.chula.ac.th/nakhara/vol19/iss1/6/), supplied `README_analytics.txt`, original lighting baseline and the generated source manifest.']
-    (HERE/'lighting_findings.md').write_text('\n'.join(lines)+'\n')

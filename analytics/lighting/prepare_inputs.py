@@ -12,10 +12,12 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT / 'baseline'))
+OUTPUT = ROOT / 'outputs' / 'lighting'
+sys.path.insert(0, str(ROOT / 'analytics' / 'baseline'))
 from _shared import clean_data_directory, read_clean_file
 from lighting_peak_baseline import _build_zone_intervals
 from activity_states import add_interpolation_fractions
+from schedules import operating_mask, operating_index, legacy_settings, transition_mask
 
 
 def sha256(path):
@@ -24,6 +26,36 @@ def sha256(path):
         for block in iter(lambda: stream.read(1024*1024), b''):
             digest.update(block)
     return digest.hexdigest()
+
+
+def zone_minute_support(data, zone):
+    """Aggregate components on common cleaned-minute support for safe subtraction."""
+    columns = [c for c in data if c.startswith(f'z{zone}_')]
+    power = [c for c in columns if c.endswith('(kW)')]
+    lights = [c for c in power if '_Light' in c]
+    plugs = [c for c in power if '_Plug' in c]
+    lux = [c for c in columns if c.endswith('(lux)')]
+    empty = pd.Series(np.nan, index=data.index)
+    total = data[power].sum(axis=1, min_count=len(power))
+    light = data[lights].sum(axis=1, min_count=len(lights)) if lights else empty
+    plug = data[plugs].sum(axis=1, min_count=len(plugs)) if plugs else empty
+    ambient = data[lux].mean(axis=1, skipna=False) if lux else empty
+    power_valid = total.notna()
+    joint_valid = power_valid & ambient.notna()
+    plug_coverage = plug.notna().resample('15min').sum()/15
+    power_coverage = power_valid.resample('15min').sum()/15
+    joint_coverage = joint_valid.resample('15min').sum()/15
+    item = pd.DataFrame(dict(
+        plug_kW=plug.resample('15min').mean().where(plug_coverage >= .8),
+        plug_coverage=plug_coverage, power_complete=power_coverage.eq(1),
+        paired_complete=joint_coverage.eq(1), common_paired_coverage=joint_coverage))
+    # A missing AC minute must also be excluded from the lighting component.
+    for name, values in [('total', total), ('light', light)]:
+        item[f'common_power_{name}_kW'] = values.where(power_valid).resample('15min').mean().where(power_coverage >= .8)
+        item[f'common_paired_{name}_kW'] = values.where(joint_valid).resample('15min').mean().where(joint_coverage >= .8)
+    item['common_paired_lux'] = ambient.where(joint_valid).resample('15min').mean().where(joint_coverage >= .8)
+    item['has_lux_sensor'], item['has_plug_meter'] = bool(lux), bool(plugs)
+    return item
 
 
 def prepare_inputs():
@@ -36,7 +68,7 @@ def prepare_inputs():
     quality_dir = ROOT / config['quality_reports']
     supporting_paths = [support / f'{name}.csv' for name in ['daily_summary','zone_hourly']]
     supporting_paths += [quality_dir / f'{name}.csv' for name in ['data_quality','removed_readings']]
-    baseline_paths = [ROOT / 'baseline' / 'outputs' / name for name in
+    baseline_paths = [ROOT / 'outputs' / 'baseline' / name for name in
                       ['lighting_zone_april_baseline.csv','lighting_floor2_april_baseline.csv','lighting_lux_sensitivity.csv']]
     for path in supporting_paths + baseline_paths:
         if not path.exists():
@@ -50,20 +82,7 @@ def prepare_inputs():
         data = read_clean_file(clean_dir / f'2019Floor{floor}.csv', re.compile(r'z\d+_(?:AC\d+|Light|Plug)\(kW\)|z\d+_S1\(lux\)'))
         data = data.loc[config['calibration_start']:pd.Timestamp(config['evaluation_end'])-pd.Timedelta(minutes=1)]
         for zone in sorted(intervals.loc[intervals.floor.eq(floor), 'zone'].unique()):
-            prefix = f'z{zone}_'
-            power = [c for c in data if c.startswith(prefix) and c.endswith('(kW)')]
-            plugs = [c for c in power if '_Plug' in c]
-            lux = [c for c in data if c.startswith(prefix) and c.endswith('(lux)')]
-            total_valid = data[power].notna().all(axis=1)
-            lux_valid = data[lux].notna().all(axis=1) if lux else pd.Series(False,index=data.index)
-            plug = data[plugs].sum(axis=1,min_count=len(plugs)) if plugs else pd.Series(np.nan,index=data.index)
-            coverage = plug.notna().resample('15min').sum()/15
-            item = pd.DataFrame({'plug_kW':plug.resample('15min').mean().where(coverage >= .8),
-                                 'plug_coverage':coverage,
-                                 'power_complete':total_valid.resample('15min').sum().eq(15),
-                                 'paired_complete':(total_valid & lux_valid).resample('15min').sum().eq(15)})
-            item['has_lux_sensor'] = bool(lux)
-            item['has_plug_meter'] = bool(plugs)
+            item = zone_minute_support(data, zone)
             item['floor'],item['zone'] = floor,zone
             pieces.append(item.rename_axis('Date').reset_index())
     intervals = intervals.merge(pd.concat(pieces,ignore_index=True),on=['Date','floor','zone'],validate='one_to_one')
@@ -79,11 +98,11 @@ def prepare_inputs():
     t=intervals.Date
     intervals['hour']=t.dt.hour
     intervals['month']=t.dt.strftime('%Y-%m')
-    intervals['is_operating_hour']=(t.dt.dayofweek.isin(config['operating_weekdays']) &
-                                    t.dt.hour.ge(config['operating_start_hour']) & t.dt.hour.lt(config['operating_end_hour']))
+    intervals['is_operating_hour'] = operating_mask(t, config)
+    intervals['is_transition_hour'] = transition_mask(t, config)
     intervals['schedule_segment']=np.select(
-        [intervals.day_type.eq('closure'),t.dt.dayofweek.ge(5),intervals.is_operating_hour],
-        ['inferred closure','weekend','weekday operating'],default='weekday outside hours')
+        [intervals.day_type.eq('closure'),t.dt.dayofweek.ge(5),intervals.is_operating_hour,intervals.is_transition_hour],
+        ['inferred closure','weekend','weekday operating','weekday transition'],default='weekday outside hours')
     intervals['light_valid']=intervals.light_kW.notna()
     intervals['lux_valid']=intervals.lux.notna()
     intervals['paired_valid']=intervals.total_kW.notna() & intervals.light_kW.notna() & intervals.lux.notna()
@@ -102,18 +121,20 @@ def prepare_inputs():
     assert not intervals.duplicated(['Date','floor','zone']).any()
     counts=intervals.groupby(['floor','zone']).size()
     assert len(counts)==33 and counts.eq(5376).all(),counts
-    for month,expected in [('2019-03',720),('2019-04',880)]:
+    for month, start, end in [('2019-03', config['calibration_start'], config['evaluation_start']),
+                               ('2019-04', config['evaluation_start'], config['evaluation_end'])]:
+        expected = len(operating_index(config, start, end))
         assert intervals.loc[intervals.month.eq(month)&intervals.is_operating_hour].groupby(['floor','zone']).size().eq(expected).all()
     # Reconcile with saved baseline on its exact operating-window definition.
     saved=pd.read_csv(baseline_paths[0])
-    april=intervals.loc[intervals.month.eq('2019-04')&intervals.is_operating_hour]
+    april=intervals.loc[intervals.month.eq('2019-04') & operating_mask(intervals.Date, legacy_settings(config))]
     recalculated=april.groupby(['floor','zone']).total_kW.max().rename('recalculated').reset_index()
     check=saved.merge(recalculated,on=['floor','zone'],validate='one_to_one')
     if not np.allclose(check.april_peak_total_kW,check.recalculated,equal_nan=True):
         raise ValueError('Saved baseline does not reconcile with cleaned inputs. Rerun the original lighting baseline.')
-    out=HERE/'outputs'; out.mkdir(exist_ok=True)
+    out=OUTPUT; out.mkdir(parents=True, exist_ok=True)
     intervals.to_csv(out/'zone_15min.csv',index=False)
-    sources=sorted(clean_dir.glob('*Floor*.csv'))+supporting_paths+baseline_paths+[config_path,Path(__file__),HERE/'activity_states.py',ROOT/'baseline'/'lighting_peak_baseline.py']
+    sources=sorted(clean_dir.glob('*Floor*.csv'))+supporting_paths+baseline_paths+[config_path,Path(__file__),HERE/'activity_states.py',HERE/'schedules.py',ROOT/'analytics'/'baseline'/'lighting_peak_baseline.py']
     if quality_path.exists(): sources.append(quality_path)
     revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     manifest={'source_revision':revision,'source_tree_dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),
@@ -128,7 +149,7 @@ def prepare_inputs():
 
 
 def load_inputs():
-    manifest_path=HERE/'outputs'/'run_manifest.json'
+    manifest_path=OUTPUT/'run_manifest.json'
     if not manifest_path.exists():
         raise FileNotFoundError('Run analytics/lighting/prepare_inputs.py first.')
     manifest=json.loads(manifest_path.read_text())
@@ -136,7 +157,7 @@ def load_inputs():
         path=ROOT/relative
         if not path.exists() or sha256(path)!=digest:
             raise ValueError(f'Input changed: {relative}. Rerun prepare_inputs.py.')
-    path=HERE/'outputs'/'zone_15min.csv'
+    path=OUTPUT/'zone_15min.csv'
     if sha256(path)!=manifest['output_sha256']:
         raise ValueError('Shared interval table changed. Rerun prepare_inputs.py.')
     return pd.read_csv(path,parse_dates=['Date','calendar_date']),manifest

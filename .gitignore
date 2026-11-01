@@ -13,9 +13,10 @@ data-cleaning/outputs/clean/
 
 # ===== Baseline =====
 # Large regenerated outputs (~1.5 GB): run the appropriate baseline notebook to recreate them
-baseline/outputs/
+outputs/baseline/*.png
+outputs/baseline/humidity_zone_hourly_baseline.csv
 # Downloaded Open-Meteo ERA5 cache (regenerable from the baseline notebook)
-baseline/data/bangkok_era5_hourly_2018-2019.csv
+outputs/weather/
 
 # Preserve the six previously tracked cleaning tables at their new locations.
 # Additional regenerated outputs remain ignored.
@@ -27,5 +28,9 @@ data-cleaning/outputs/aggregated/*
 data-cleaning/outputs/quality/*
 !data-cleaning/outputs/quality/data_quality.csv
 !data-cleaning/outputs/quality/removed_readings.csv
-# Regenerated lighting analytics
-analytics/lighting/outputs/
+# Large regenerated analytical intermediates; compact CSV/JSON results are shared.
+outputs/lighting/zone_15min.csv
+outputs/lighting/lighting_activity_intervals.csv
+outputs/lighting/scenario_intervals.csv.gz
+outputs/lighting/*_figures/
+tmp/
