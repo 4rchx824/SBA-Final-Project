@@ -10,7 +10,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'analytics/lighting'))
 from activity_states import fit_states, classify
 from assessment import assess_activity, calibrate_activity, schedule_table, matched_day_night
 
-CONFIG=dict(minimum_state_intervals=96,minimum_cluster_share=.1,minimum_state_separation=2.,
+CONFIG=dict(operating_start_hour=8,operating_end_hour=17,minimum_state_intervals=96,minimum_cluster_share=.1,minimum_state_separation=2.,
             minimum_boundary_gap_kW=.02,coverage_gate=.8,matched_power_bins=4,minimum_matched_bin_count=8)
 
 

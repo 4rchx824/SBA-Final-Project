@@ -14,9 +14,14 @@ def build_validation_tables(intervals, settings):
     for scope in ['building', 'Floor 2']:
         selected_zones = zones if scope == 'building' else zones[zones.get_level_values('floor') == 2]
         group = evaluation if scope == 'building' else evaluation.loc[evaluation.floor.eq(2)]
-        for policy in ['baseline-compatible power', 'complete cleaned power']:
+        policies = ['baseline-compatible power', 'complete cleaned power']
+        if 'power_complete_without_repairs' in group and 'repair_provenance_available' in group and group.repair_provenance_available.all():
+            policies.append('repair-free complete power')
+        for policy in policies:
             # Count simultaneous intervals, never sum separate zone maxima.
-            valid = group.total_kW.notna() if policy.startswith('baseline') else group.power_complete.fillna(False)
+            valid = (group.total_kW.notna() if policy.startswith('baseline') else
+                     group.power_complete_without_repairs.fillna(False) if policy.startswith('repair-free') else
+                     group.power_complete.fillna(False))
             wide = group.assign(valid=valid).pivot(index='Date', columns=['floor', 'zone'], values='valid')
             wide = wide.reindex(index=expected, columns=selected_zones).fillna(False).astype(bool)
             simultaneous = wide.all(axis=1) if len(selected_zones) else pd.Series(False, index=expected)
@@ -30,7 +35,7 @@ def build_validation_tables(intervals, settings):
     lux = daytime.lux.dropna()
     headroom = []
     # These are the existing proposal targets, not newly validated comfort requirements.
-    for target in [100, 150, 200, 300, 500]:
+    for target in settings.get('scenarios', {}).get('lux_targets', [100, 150, 200, 300, 500]):
         above = int(lux.ge(target).sum()) if len(lux) else None
         headroom.append(dict(target_lux=target, valid_lux_intervals=len(lux),
                              maximum_ambient_lux=lux.max(), intervals_at_or_above_target=above,

@@ -318,7 +318,7 @@ def _schedule_summary(hourly):
 
 def run_humidity_baseline(weather):
     clean_dir = clean_data_directory()
-    output_dir = Path(__file__).resolve().parent / "outputs"
+    output_dir = Path(__file__).resolve().parents[2] / "outputs" / "baseline"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     features_by_zone = []

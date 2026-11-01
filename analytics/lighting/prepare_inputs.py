@@ -12,10 +12,12 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT / 'baseline'))
+OUTPUT = ROOT / 'outputs' / 'lighting'
+sys.path.insert(0, str(ROOT / 'analytics' / 'baseline'))
 from _shared import clean_data_directory, read_clean_file
 from lighting_peak_baseline import _build_zone_intervals
 from activity_states import add_interpolation_fractions
+from schedules import operating_mask, operating_index, legacy_settings, transition_mask
 
 
 def sha256(path):
@@ -66,7 +68,7 @@ def prepare_inputs():
     quality_dir = ROOT / config['quality_reports']
     supporting_paths = [support / f'{name}.csv' for name in ['daily_summary','zone_hourly']]
     supporting_paths += [quality_dir / f'{name}.csv' for name in ['data_quality','removed_readings']]
-    baseline_paths = [ROOT / 'baseline' / 'outputs' / name for name in
+    baseline_paths = [ROOT / 'outputs' / 'baseline' / name for name in
                       ['lighting_zone_april_baseline.csv','lighting_floor2_april_baseline.csv','lighting_lux_sensitivity.csv']]
     for path in supporting_paths + baseline_paths:
         if not path.exists():
@@ -96,11 +98,11 @@ def prepare_inputs():
     t=intervals.Date
     intervals['hour']=t.dt.hour
     intervals['month']=t.dt.strftime('%Y-%m')
-    intervals['is_operating_hour']=(t.dt.dayofweek.isin(config['operating_weekdays']) &
-                                    t.dt.hour.ge(config['operating_start_hour']) & t.dt.hour.lt(config['operating_end_hour']))
+    intervals['is_operating_hour'] = operating_mask(t, config)
+    intervals['is_transition_hour'] = transition_mask(t, config)
     intervals['schedule_segment']=np.select(
-        [intervals.day_type.eq('closure'),t.dt.dayofweek.ge(5),intervals.is_operating_hour],
-        ['inferred closure','weekend','weekday operating'],default='weekday outside hours')
+        [intervals.day_type.eq('closure'),t.dt.dayofweek.ge(5),intervals.is_operating_hour,intervals.is_transition_hour],
+        ['inferred closure','weekend','weekday operating','weekday transition'],default='weekday outside hours')
     intervals['light_valid']=intervals.light_kW.notna()
     intervals['lux_valid']=intervals.lux.notna()
     intervals['paired_valid']=intervals.total_kW.notna() & intervals.light_kW.notna() & intervals.lux.notna()
@@ -119,18 +121,20 @@ def prepare_inputs():
     assert not intervals.duplicated(['Date','floor','zone']).any()
     counts=intervals.groupby(['floor','zone']).size()
     assert len(counts)==33 and counts.eq(5376).all(),counts
-    for month,expected in [('2019-03',720),('2019-04',880)]:
+    for month, start, end in [('2019-03', config['calibration_start'], config['evaluation_start']),
+                               ('2019-04', config['evaluation_start'], config['evaluation_end'])]:
+        expected = len(operating_index(config, start, end))
         assert intervals.loc[intervals.month.eq(month)&intervals.is_operating_hour].groupby(['floor','zone']).size().eq(expected).all()
     # Reconcile with saved baseline on its exact operating-window definition.
     saved=pd.read_csv(baseline_paths[0])
-    april=intervals.loc[intervals.month.eq('2019-04')&intervals.is_operating_hour]
+    april=intervals.loc[intervals.month.eq('2019-04') & operating_mask(intervals.Date, legacy_settings(config))]
     recalculated=april.groupby(['floor','zone']).total_kW.max().rename('recalculated').reset_index()
     check=saved.merge(recalculated,on=['floor','zone'],validate='one_to_one')
     if not np.allclose(check.april_peak_total_kW,check.recalculated,equal_nan=True):
         raise ValueError('Saved baseline does not reconcile with cleaned inputs. Rerun the original lighting baseline.')
-    out=HERE/'outputs'; out.mkdir(exist_ok=True)
+    out=OUTPUT; out.mkdir(parents=True, exist_ok=True)
     intervals.to_csv(out/'zone_15min.csv',index=False)
-    sources=sorted(clean_dir.glob('*Floor*.csv'))+supporting_paths+baseline_paths+[config_path,Path(__file__),HERE/'activity_states.py',ROOT/'baseline'/'lighting_peak_baseline.py']
+    sources=sorted(clean_dir.glob('*Floor*.csv'))+supporting_paths+baseline_paths+[config_path,Path(__file__),HERE/'activity_states.py',HERE/'schedules.py',ROOT/'analytics'/'baseline'/'lighting_peak_baseline.py']
     if quality_path.exists(): sources.append(quality_path)
     revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     manifest={'source_revision':revision,'source_tree_dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),
@@ -145,7 +149,7 @@ def prepare_inputs():
 
 
 def load_inputs():
-    manifest_path=HERE/'outputs'/'run_manifest.json'
+    manifest_path=OUTPUT/'run_manifest.json'
     if not manifest_path.exists():
         raise FileNotFoundError('Run analytics/lighting/prepare_inputs.py first.')
     manifest=json.loads(manifest_path.read_text())
@@ -153,7 +157,7 @@ def load_inputs():
         path=ROOT/relative
         if not path.exists() or sha256(path)!=digest:
             raise ValueError(f'Input changed: {relative}. Rerun prepare_inputs.py.')
-    path=HERE/'outputs'/'zone_15min.csv'
+    path=OUTPUT/'zone_15min.csv'
     if sha256(path)!=manifest['output_sha256']:
         raise ValueError('Shared interval table changed. Rerun prepare_inputs.py.')
     return pd.read_csv(path,parse_dates=['Date','calendar_date']),manifest

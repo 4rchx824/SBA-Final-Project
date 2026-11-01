@@ -35,6 +35,19 @@ class LightingValidationTests(unittest.TestCase):
         self.assertTrue(headroom.intervals_at_or_above_target.eq(0).all())
         self.assertTrue(headroom.maximum_ambient_lux.eq(80).all())
 
+    def test_repair_free_coverage_is_distinct_and_requires_provenance(self):
+        data = self.data()
+        data['repair_provenance_available'] = True
+        data['power_complete_without_repairs'] = data.power_complete
+        data.loc[2, 'power_complete_without_repairs'] = False
+        coverage, _ = build_validation_tables(data, SETTINGS)
+        selected = coverage.query("scope == 'building' and window == 'all hours'").set_index('policy')
+        self.assertEqual(selected.loc['complete cleaned power', 'simultaneous_intervals'], 2)
+        self.assertEqual(selected.loc['repair-free complete power', 'simultaneous_intervals'], 1)
+        data['repair_provenance_available'] = False
+        coverage, _ = build_validation_tables(data, SETTINGS)
+        self.assertFalse(coverage.policy.eq('repair-free complete power').any())
+
 
 if __name__ == '__main__':
     unittest.main()

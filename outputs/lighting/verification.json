@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "intervals_checked": 4414080,
+  "zone_scenario_combinations": 5280,
+  "primary_zones": 33,
+  "reportable_zones": 17,
+  "checks": [
+    "interval arithmetic",
+    "missing demand preservation",
+    "no-change identity",
+    "reduction caps and eligibility",
+    "unique interval keys",
+    "window denominators",
+    "recomputed peaks and energy",
+    "exclusion reconciliation",
+    "reporting masks",
+    "coincident coverage gates",
+    "source and implementation hashes"
+  ]
+}

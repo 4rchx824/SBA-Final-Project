@@ -25,6 +25,18 @@ class LightingScenarioTests(unittest.TestCase):
         self.assertEqual(out.scenario_total_kW.tolist(),[8.,9.,4.])
         self.assertEqual(summary['reported_peak_reduction_kW'],1.)
         self.assertEqual(summary['reported_energy_reduction_kWh'],.5)
+        self.assertEqual(summary['baseline_peak_time'], out.index[0])
+        self.assertEqual(summary['scenario_peak_time'], out.index[1])
+        self.assertTrue(summary['peak_shifted'])
+        self.assertEqual(summary['lighting_share_at_original_peak_pct'], 40.)
+
+    def test_all_missing_peaks_are_not_a_peak_shift_or_zero_saving(self):
+        data = self.series()
+        data['baseline_total_kW'] = np.nan
+        summary = summarize_scenario(self.apply(data), False)
+        self.assertTrue(pd.isna(summary['baseline_peak_time']))
+        self.assertIsNone(summary['peak_shifted'])
+        self.assertTrue(pd.isna(summary['reported_peak_reduction_kW']))
 
     def test_no_change_reproduces_every_observed_value(self):
         out=self.apply(cap=0)

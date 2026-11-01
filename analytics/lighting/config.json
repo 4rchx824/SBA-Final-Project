@@ -12,7 +12,7 @@
     4
   ],
   "operating_start_hour": 8,
-  "operating_end_hour": 18,
+  "operating_end_hour": 17,
   "supporting_tables": "data-cleaning/outputs/aggregated",
   "coverage_gate": 0.8,
   "minimum_state_intervals": 96,
@@ -54,5 +54,14 @@
     "primary_target_lux": 500,
     "primary_cap": 0.2,
     "primary_period_coverage_gate": 0.8
-  }
+  },
+  "schedule_sensitivities": [
+    {
+      "id": "extended",
+      "start_hour": 8,
+      "end_hour": 18
+    }
+  ],
+  "transition_start_hour": 17,
+  "transition_end_hour": 18
 }
