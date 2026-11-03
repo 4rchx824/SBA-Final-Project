@@ -71,7 +71,7 @@ def _build_zone_intervals(clean_dir):
 
 
 def _operating_hours(data):
-    weekdays = data["Date"].dt.dayofweek < 5
+    weekdays = data["Date"].dt.day_of_week < 5
     office_hours = data["Date"].dt.hour.between(8, 17)
     return data.loc[weekdays & office_hours].copy()
 

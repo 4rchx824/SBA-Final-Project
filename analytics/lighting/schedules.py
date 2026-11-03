@@ -8,7 +8,7 @@ LEGACY_END_HOUR = 18
 
 def operating_mask(dates, settings):
     dates = pd.DatetimeIndex(dates)
-    return (dates.dayofweek.isin(settings['operating_weekdays']) &
+    return (dates.day_of_week.isin(settings['operating_weekdays']) &
             (dates.hour >= settings['operating_start_hour']) &
             (dates.hour < settings['operating_end_hour']))
 
@@ -38,6 +38,6 @@ def legacy_settings(settings):
 
 def transition_mask(dates, settings):
     dates = pd.DatetimeIndex(dates)
-    return (dates.dayofweek.isin(settings['operating_weekdays']) &
+    return (dates.day_of_week.isin(settings['operating_weekdays']) &
             (dates.hour >= settings['transition_start_hour']) &
             (dates.hour < settings['transition_end_hour']))

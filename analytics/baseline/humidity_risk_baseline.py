@@ -232,7 +232,7 @@ def _hourly_summary(features):
     result["hour"] = result["Date"].dt.hour
     result["year"] = result["Date"].dt.year
     result["month"] = result["Date"].dt.month
-    result["weekday"] = result["Date"].dt.dayofweek < 5
+    result["weekday"] = result["Date"].dt.day_of_week < 5
     result["assumed_occupied"] = result["weekday"] & result["hour"].between(8, 17)
     return result
 

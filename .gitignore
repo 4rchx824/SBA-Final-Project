@@ -28,6 +28,8 @@ data-cleaning/outputs/aggregated/*
 data-cleaning/outputs/quality/*
 !data-cleaning/outputs/quality/data_quality.csv
 !data-cleaning/outputs/quality/removed_readings.csv
+# Interpolation log used by the lighting analysis for repair-free coverage
+!data-cleaning/outputs/quality/interpolated_runs.csv
 # Large regenerated analytical intermediates; compact CSV/JSON results are shared.
 outputs/lighting/zone_15min.csv
 outputs/lighting/lighting_activity_intervals.csv

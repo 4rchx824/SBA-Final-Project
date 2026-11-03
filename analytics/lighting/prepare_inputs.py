@@ -5,6 +5,7 @@ import platform
 import re
 import subprocess
 import sys
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -101,7 +102,7 @@ def prepare_inputs():
     intervals['is_operating_hour'] = operating_mask(t, config)
     intervals['is_transition_hour'] = transition_mask(t, config)
     intervals['schedule_segment']=np.select(
-        [intervals.day_type.eq('closure'),t.dt.dayofweek.ge(5),intervals.is_operating_hour,intervals.is_transition_hour],
+        [intervals.day_type.eq('closure'),t.dt.day_of_week.ge(5),intervals.is_operating_hour,intervals.is_transition_hour],
         ['inferred closure','weekend','weekday operating','weekday transition'],default='weekday outside hours')
     intervals['light_valid']=intervals.light_kW.notna()
     intervals['lux_valid']=intervals.lux.notna()
@@ -112,6 +113,8 @@ def prepare_inputs():
         intervals = add_interpolation_fractions(intervals,quality_path)
         intervals['repair_provenance_available']=True
     else:
+        warnings.warn(f'{quality_path} not found: repair-free coverage and activity exclusions will be unavailable. '
+                      'Re-run data-cleaning/main.ipynb to create it.', stacklevel=2)
         for name in ['light','plug','lux','total']:
             intervals[name+'_interpolated_fraction']=np.nan
         intervals['repair_provenance_available']=False

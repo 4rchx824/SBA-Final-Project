@@ -75,7 +75,7 @@ def verify_outputs():
                             row.paired_observed_peak_reduction_kW, row.paired_observed_energy_reduction_kWh], equal_nan=True)
         dates = pd.DatetimeIndex(sorted(record['dates']))
         start, end = map(int, row.operating_window.replace('\u2013', '-').replace(':00', '').split('-'))
-        assert ((dates.month == 4) & (dates.year == 2019) & (dates.dayofweek < 5) &
+        assert ((dates.month == 4) & (dates.year == 2019) & (dates.day_of_week < 5) &
                 (dates.hour >= start) & (dates.hour < end)).all()
     reported = summary.status.eq('modeled result; comfort unvalidated')
     assert summary.reported_peak_reduction_kW.notna().equals(reported)
