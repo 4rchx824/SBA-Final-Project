@@ -6,3 +6,5 @@ matplotlib>=3.8
 ipykernel>=6.29
 jupyterlab>=4.0
 nbconvert>=7.0
+# Thai public and government holiday dates (day_calendar.csv)
+holidays>=0.60

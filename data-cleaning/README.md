@@ -20,7 +20,7 @@ Issues it finds and fixes:
 | 2019 Floor 6 is cut off on 22 Oct 2019 and ends in a junk row | Junk row dropped; missing minutes kept as blank rows |
 | ~450 power spikes, mostly logger bursts after a dropout (up to 4,762 kW) | Removed and filled by interpolation; each one logged in `removed_readings.csv` |
 | Floor 5 zone 1 temperature reads 10–15 °C (sensor in AC air flow) | Readings below 15 °C removed and logged; sensor flagged in `data_quality.csv` |
-| 28 weekdays with weekend-level energy (building closures) look like anomalies | **Kept, not deleted**: detected from the energy data alone and labelled with a `day_type` column (working day, weekend or closure) |
+| 28 weekdays with weekend-level energy (building closures) look like anomalies | **Kept, not deleted**: detected from the energy data and labelled with a `day_type` column (working day, weekend or closure). All 28 are official Thai holidays; holiday labels are in `day_calendar.csv` |
 | Lux never exceeds ~140 (sensors probably not at desk height) | Kept; flagged as a relative indicator in `data_quality.csv` |
 | Short gaps (≤ 15 min) | Linear interpolation |
 | Long outages (e.g. all environmental sensors, Sep 2018 – Mar 2019) | Left blank, and documented |
@@ -32,7 +32,7 @@ Running the notebook (about 2 minutes) writes:
 | Folder | Contents |
 |---|---|
 | `outputs/clean/` | The 14 source files in their original format (same names and columns), cleaned: about 750 MB in total |
-| `outputs/aggregated/` | `building_15min.csv`, `floor_15min.csv`, `zone_hourly.csv`, `daily_summary.csv` |
+| `outputs/aggregated/` | `building_15min.csv`, `floor_15min.csv`, `zone_hourly.csv`, `daily_summary.csv`, `day_calendar.csv` (one row per day: `day_type` plus holiday name, type, source and whether the university observes it) |
 | `outputs/quality/` | `data_quality.csv`, `removed_readings.csv`, `interpolated_runs.csv` |
 | `outputs/figures/` | Every chart in the notebook as a PNG, ready for a report, including side-by-side before/after comparisons (`9_*.png`) |
 
@@ -106,10 +106,10 @@ jupyter kernelspec uninstall sba-py315
 
 ```text
 outputs/
-├── aggregated/  # building_15min.csv, floor_15min.csv, zone_hourly.csv, daily_summary.csv
+├── aggregated/  # building_15min.csv, floor_15min.csv, zone_hourly.csv, daily_summary.csv, day_calendar.csv
 ├── clean/       # 14 cleaned minute-level floor/year CSVs
 ├── figures/     # Cleaning diagnostic figures
 └── quality/     # data_quality.csv, removed_readings.csv, interpolated_runs.csv
 ```
 
-The lighting adapter reads aggregate and quality paths separately from `analytics/lighting/config.json`. The baseline still reads `outputs/clean/`; its input path is unchanged. The four aggregated CSVs and the two existing quality reports remain tracked in Git at these locations. The interpolation log and large cleaned source files remain ignored and can be regenerated with this notebook.
+The lighting adapter reads aggregate and quality paths separately from `analytics/lighting/config.json`. The baseline still reads `outputs/clean/`; its input path is unchanged. The five aggregated CSVs and the two existing quality reports remain tracked in Git at these locations. The interpolation log and large cleaned source files remain ignored and can be regenerated with this notebook.

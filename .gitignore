@@ -18,13 +18,15 @@ outputs/baseline/humidity_zone_hourly_baseline.csv
 # Downloaded Open-Meteo ERA5 cache (regenerable from the baseline notebook)
 outputs/weather/
 
-# Preserve the six previously tracked cleaning tables at their new locations.
+# Tracked cleaning tables and reports (everything else in these folders is regenerated).
 # Additional regenerated outputs remain ignored.
 data-cleaning/outputs/aggregated/*
 !data-cleaning/outputs/aggregated/building_15min.csv
 !data-cleaning/outputs/aggregated/floor_15min.csv
 !data-cleaning/outputs/aggregated/zone_hourly.csv
 !data-cleaning/outputs/aggregated/daily_summary.csv
+# Day-by-day calendar with holiday labels
+!data-cleaning/outputs/aggregated/day_calendar.csv
 data-cleaning/outputs/quality/*
 !data-cleaning/outputs/quality/data_quality.csv
 !data-cleaning/outputs/quality/removed_readings.csv
