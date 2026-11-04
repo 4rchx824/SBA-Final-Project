@@ -10,7 +10,8 @@ def operating_mask(dates, settings):
     dates = pd.DatetimeIndex(dates)
     return (dates.day_of_week.isin(settings['operating_weekdays']) &
             (dates.hour >= settings['operating_start_hour']) &
-            (dates.hour < settings['operating_end_hour']))
+            (dates.hour < settings['operating_end_hour']) &
+            ~dates.normalize().isin(pd.to_datetime(settings.get('excluded_dates', []))))
 
 
 def operating_index(settings, start, end):
@@ -25,6 +26,15 @@ def schedule_settings(settings):
         yield schedule['id'], {**settings,
                               'operating_start_hour': schedule['start_hour'],
                               'operating_end_hour': schedule['end_hour']}
+
+    # Holiday exclusions are a separate assumption; keep weekday-only comparisons reproducible.
+    if settings.get('university_holiday_dates'):
+        windows = [('primary', settings)] + [
+            (item['id'], {**settings, 'operating_start_hour': item['start_hour'],
+                          'operating_end_hour': item['end_hour']})
+            for item in settings.get('schedule_sensitivities', [])]
+        for name, window in windows:
+            yield name + '_holiday_excluded', {**window, 'excluded_dates': settings['university_holiday_dates']}
 
 
 def label(settings):

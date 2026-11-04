@@ -1,13 +1,12 @@
 """Reproduce available-data checks; this does not execute a reduction scenario."""
 import pandas as pd
+from schedules import operating_mask
 
 
 def build_validation_tables(intervals, settings):
     start, end = pd.Timestamp(settings['evaluation_start']), pd.Timestamp(settings['evaluation_end'])
     expected = pd.date_range(start, end, freq='15min', inclusive='left')
-    operating = (expected.day_of_week.isin(settings['operating_weekdays']) &
-                 (expected.hour >= settings['operating_start_hour']) &
-                 (expected.hour < settings['operating_end_hour']))
+    operating = operating_mask(expected, settings)
     evaluation = intervals.loc[intervals.Date.ge(start) & intervals.Date.lt(end)].copy()
     zones = pd.MultiIndex.from_frame(intervals[['floor', 'zone']].drop_duplicates())
     coverage = []

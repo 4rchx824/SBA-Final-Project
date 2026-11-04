@@ -1,7 +1,7 @@
 {
   "status": "passed",
-  "intervals_checked": 4414080,
-  "zone_scenario_combinations": 5280,
+  "intervals_checked": 8025600,
+  "zone_scenario_combinations": 10560,
   "primary_zones": 33,
   "reportable_zones": 17,
   "checks": [

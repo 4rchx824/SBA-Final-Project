@@ -25,6 +25,8 @@ def verify_outputs():
     keys = ['floor', 'zone', 'scenario_id']
     assert not summary.duplicated(keys).any(), 'Duplicate summary keys'
     expected = summary.set_index(keys)
+    calendar = pd.read_csv(ROOT / 'data-cleaning/outputs/aggregated/day_calendar.csv')
+    holidays = pd.to_datetime(calendar.loc[calendar.observed_by_university.eq(True), 'Date'])
     totals, reason_counts = {}, Counter()
     interval_count = 0
     for chunk in pd.read_csv(OUTPUT / 'scenario_intervals.csv.gz', chunksize=100_000):
@@ -74,6 +76,8 @@ def verify_outputs():
                            [row.observed_baseline_peak_kW, row.observed_scenario_peak_kW,
                             row.paired_observed_peak_reduction_kW, row.paired_observed_energy_reduction_kWh], equal_nan=True)
         dates = pd.DatetimeIndex(sorted(record['dates']))
+        if row.schedule_id.endswith('_holiday_excluded'):
+            assert not dates.normalize().isin(holidays).any()
         start, end = map(int, row.operating_window.replace('\u2013', '-').replace(':00', '').split('-'))
         assert ((dates.month == 4) & (dates.year == 2019) & (dates.day_of_week < 5) &
                 (dates.hour >= start) & (dates.hour < end)).all()
@@ -89,7 +93,7 @@ def verify_outputs():
     assert len(primary) == len(combined) == 33
     assert not combined.duplicated(['floor', 'zone']).any()
     impacts = pd.read_csv(OUTPUT / 'coincident_scenario_impact.csv')
-    assert len(impacts) == 4
+    assert len(impacts) == 2 * summary.schedule_id.nunique()
     scenario_manifest = json.loads((OUTPUT / 'scenario_manifest.json').read_text())
     gate = scenario_manifest['settings']['scenarios']['primary_period_coverage_gate']
     assert impacts.loc[impacts.coverage_pct < gate * 100, 'reported_peak_reduction_kW'].isna().all()
