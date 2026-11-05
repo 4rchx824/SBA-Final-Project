@@ -47,8 +47,8 @@ floor,zone,month,matched_power_bands,median_matched_day_minus_night_lux,status
 5,5,2019-04,0,,insufficient matched day/night evidence
 6,1,2019-03,2,18.666666666666664,descriptive paired power bands
 6,1,2019-04,0,,insufficient matched day/night evidence
-6,2,2019-03,4,5.724999999999998,descriptive paired power bands
-6,2,2019-04,3,4.733333333333334,descriptive paired power bands
+6,2,2019-03,4,5.724999999999994,descriptive paired power bands
+6,2,2019-04,3,4.733333333333327,descriptive paired power bands
 6,3,2019-03,0,,insufficient matched day/night evidence
 6,3,2019-04,0,,insufficient matched day/night evidence
 6,4,2019-03,1,37.53333333333333,descriptive paired power bands
@@ -61,7 +61,7 @@ floor,zone,month,matched_power_bands,median_matched_day_minus_night_lux,status
 7,2,2019-04,2,33.16666666666667,descriptive paired power bands
 7,3,2019-03,0,,insufficient matched day/night evidence
 7,3,2019-04,0,,insufficient matched day/night evidence
-7,4,2019-03,1,50.233333333333334,descriptive paired power bands
+7,4,2019-03,1,50.23333333333333,descriptive paired power bands
 7,4,2019-04,3,58.766666666666666,descriptive paired power bands
 7,5,2019-03,1,11.06666666666667,descriptive paired power bands
 7,5,2019-04,1,64.63333333333333,descriptive paired power bands

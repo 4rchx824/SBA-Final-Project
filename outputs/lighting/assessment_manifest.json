@@ -1,6 +1,6 @@
 {
   "shared_input_manifest": "run_manifest.json",
-  "analysis_source_sha256": "e5a964dd0ce1294af75d7c38d9c9a4c1e9ac2525a20c897219437e77162e1e7c",
-  "activity_source_sha256": "5f3d77ec5e9a8c63ce3485d78182b03f4b0931db4d02887fbcf64d1373920fd1",
+  "analysis_source_sha256": "c43f7b916c2041bea6ac3a2afeeb250368cbb298edbbeb5618d9df00a7bf2fa9",
+  "activity_source_sha256": "8399fdcaeb9669f04be9cf900f59ce8ecdba28b05af4a77f30d544feb5bfb3dd",
   "scope": "Descriptive lighting assessment; no reduction scenarios"
 }

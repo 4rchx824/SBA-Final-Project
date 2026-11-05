@@ -1,7 +1,7 @@
 {
-  "input_manifest_sha256": "bd3681dd7e6dbf79b8815455824f1e0bd733dce58b06292d7ba9b472bfbe7324",
-  "implementation_sha256": "57499dc3801e0cd51e2cbeca30a424236e6ce5e38c78a7bb5e7cedd7e67c925a",
-  "audit_source_sha256": "06ce53d85690b327210c4dbe33202f4451edbb870e9f5b1fb17772ad26e09568",
+  "input_manifest_sha256": "d34f4606b0b05d5de9fee4c7deb6dcbfead35dea2b42ea647430042afde947a9",
+  "implementation_sha256": "7644df099faa41ea1bc5a715537de6c441196b80cf70f82cc217ae126abdfcdc",
+  "audit_source_sha256": "63ba00fa0f9da4f937e42df2ed3431811b593e50c550f33497a399b9dcdb13d5",
   "settings": {
     "scope": "Lighting assessment and conditional reduction scenarios",
     "calibration_start": "2019-03-06",

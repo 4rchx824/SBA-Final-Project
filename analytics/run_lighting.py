@@ -1,6 +1,9 @@
 """Execute the complete lighting workflow and save reviewable notebooks."""
 from pathlib import Path
 import os
+import json
+import subprocess
+import sys
 
 import nbformat
 from nbclient import NotebookClient
@@ -15,6 +18,9 @@ NOTEBOOKS = [
 
 
 def main():
+    output = ROOT / 'outputs/lighting'
+    output.mkdir(parents=True, exist_ok=True)
+    (output / 'verification.json').write_text(json.dumps({'status': 'in_progress'})+'\n')
     os.environ.setdefault('MPLBACKEND', 'module://matplotlib_inline.backend_inline')
     os.environ.setdefault('PYTHONIOENCODING', 'utf-8')
     for relative in NOTEBOOKS:
@@ -26,7 +32,8 @@ def main():
         client.execute()
         nbformat.write(notebook, path)
         print(f'Saved {relative}', flush=True)
-    print('All lighting notebooks executed; audit receipt: outputs/lighting/verification.json', flush=True)
+    subprocess.run([sys.executable, str(ROOT / 'tests/verify_lighting_outputs.py')], check=True)
+    print('All lighting notebooks executed and outputs audited; receipt: outputs/lighting/verification.json', flush=True)
 
 
 if __name__ == '__main__':

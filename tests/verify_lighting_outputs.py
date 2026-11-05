@@ -10,6 +10,8 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / 'outputs/lighting'
+sys.path.insert(0, str(ROOT / 'analytics'))
+from check_lighting_freshness import snapshot
 
 
 def digest(path):
@@ -21,6 +23,9 @@ def digest(path):
 
 
 def verify_outputs():
+    # A failed audit must never leave an older success receipt in place.
+    (OUTPUT / 'verification.json').write_text(json.dumps({'status': 'in_progress'})+'\n')
+    before = snapshot()
     summary = pd.read_csv(OUTPUT / 'scenario_sensitivity.csv')
     keys = ['floor', 'zone', 'scenario_id']
     assert not summary.duplicated(keys).any(), 'Duplicate summary keys'
@@ -64,7 +69,9 @@ def verify_outputs():
                 record['after'] = max(record['after'], group.scenario_total_kW.max())
             record['reduction'] += group.reduction_kW.sum()
             reason_counts.update({(*key, reason): int(n) for reason, n in group.eligibility_reason.value_counts().items()})
-    assert set(totals) == set(expected.index)
+    assert set(totals) == set(expected.index), (
+        f'Detailed scenario file and summary disagree: {len(totals)} vs '
+        f'{len(expected)} combinations. Run python analytics/run_lighting.py.')
     for key, record in totals.items():
         row = expected.loc[key]
         assert record['rows'] == row.april_expected_intervals
@@ -113,6 +120,10 @@ def verify_outputs():
                           'reduction caps and eligibility', 'unique interval keys', 'window denominators',
                           'recomputed peaks and energy', 'exclusion reconciliation', 'reporting masks',
                           'coincident coverage gates', 'source and implementation hashes'])
+    after = snapshot()
+    if before != after:
+        raise RuntimeError('Files changed during the audit; rerun after other writers finish.')
+    result['file_sha256'] = after
     (OUTPUT / 'verification.json').write_text(json.dumps(result, indent=2)+'\n')
     return result
 

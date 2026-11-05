@@ -37,7 +37,7 @@ floor,zone,month,matched_power_bands,median_matched_day_minus_night_lux,status
 4,5,2019-04,2,3.8333333333333335,descriptive paired power bands
 5,1,2019-03,2,2.0,descriptive paired power bands
 5,1,2019-04,3,3.3,descriptive paired power bands
-5,2,2019-03,3,-1.8999999999999986,descriptive paired power bands
+5,2,2019-03,3,-1.9000000000000021,descriptive paired power bands
 5,2,2019-04,3,0.0,descriptive paired power bands
 5,3,2019-03,0,,insufficient matched day/night evidence
 5,3,2019-04,0,,insufficient matched day/night evidence
@@ -48,12 +48,12 @@ floor,zone,month,matched_power_bands,median_matched_day_minus_night_lux,status
 6,1,2019-03,3,6.20000000000001,descriptive paired power bands
 6,1,2019-04,1,2.416666666666667,descriptive paired power bands
 6,2,2019-03,6,2.116666666666663,descriptive paired power bands
-6,2,2019-04,5,4.666666666666664,descriptive paired power bands
+6,2,2019-04,5,4.666666666666657,descriptive paired power bands
 6,3,2019-03,0,,insufficient matched day/night evidence
 6,3,2019-04,0,,insufficient matched day/night evidence
 6,4,2019-03,2,18.55,descriptive paired power bands
 6,4,2019-04,1,1.0,descriptive paired power bands
-6,5,2019-03,2,3.4999999999999982,descriptive paired power bands
+6,5,2019-03,2,3.4999999999999996,descriptive paired power bands
 6,5,2019-04,2,11.966666666666667,descriptive paired power bands
 7,1,2019-03,3,1.0,descriptive paired power bands
 7,1,2019-04,3,1.0,descriptive paired power bands
