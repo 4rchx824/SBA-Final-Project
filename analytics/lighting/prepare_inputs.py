@@ -67,7 +67,7 @@ def prepare_inputs():
     # Select these paths explicitly so legacy snapshots are never mixed into a run.
     support = ROOT / config['supporting_tables']
     quality_dir = ROOT / config['quality_reports']
-    supporting_paths = [support / f'{name}.csv' for name in ['daily_summary','zone_hourly']]
+    supporting_paths = [support / f'{name}.csv' for name in ['daily_summary','zone_hourly','day_calendar']]
     supporting_paths += [quality_dir / f'{name}.csv' for name in ['data_quality','removed_readings']]
     baseline_paths = [ROOT / 'outputs' / 'baseline' / name for name in
                       ['lighting_zone_april_baseline.csv','lighting_floor2_april_baseline.csv','lighting_lux_sensitivity.csv']]
@@ -91,6 +91,17 @@ def prepare_inputs():
     labels = daily[['Date','day_type']].drop_duplicates()
     if labels.Date.duplicated().any():
         raise ValueError('Conflicting floor day_type labels; resolve before joining.')
+    calendar = pd.read_csv(support / 'day_calendar.csv', parse_dates=['Date'])
+    if calendar.Date.duplicated().any():
+        raise ValueError('Holiday calendar must contain one row per date.')
+    columns = ['Date', 'is_public_holiday', 'holiday_name', 'holiday_type',
+               'observed_by_university', 'holiday_source']
+    labels = labels.merge(calendar[columns], on='Date', how='left', validate='one_to_one')
+    if labels.observed_by_university.isna().any():
+        raise ValueError('Holiday calendar does not cover all supporting dates.')
+    # Observance is supplied calendar evidence, not measured building occupancy.
+    config['university_holiday_dates'] = calendar.loc[
+        calendar.observed_by_university.eq(True), 'Date'].dt.strftime('%Y-%m-%d').tolist()
     labels = labels.rename(columns={'Date':'calendar_date'})
     intervals['calendar_date'] = intervals.Date.dt.normalize()
     intervals = intervals.merge(labels,on='calendar_date',how='left',validate='many_to_one')

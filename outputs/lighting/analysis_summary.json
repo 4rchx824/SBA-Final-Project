@@ -11,7 +11,7 @@
     "insufficient April power coverage": 1,
     "insufficient April paired coverage": 1
   },
-  "zone_scenario_combinations": 5280,
+  "zone_scenario_combinations": 10560,
   "comfort_preserving_savings": "undetermined; ambient lux is not task-plane illuminance",
   "building_impact": "unverified; aligned submeters are not an independent main meter",
   "zero_interpretation": "No modeled reduction under the tested assumptions is not proof of zero physical potential."

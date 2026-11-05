@@ -117,3 +117,23 @@ Source manifests preserve the execution-time revision plus file hashes; these id
 ## Interpretation limits
 
 This is retrospective telemetry analysis. Ambient lux is not occupied task-plane illumination; plug activity is not attendance. Occupant feedback, calibrated fixture response and independent main-meter records are unavailable. Zero modeled reduction does not prove zero physical savings potential. The existing humidity notebook remains a descriptive baseline, outside this lighting execution/validation scope.
+
+## Holiday update (5 November 2026)
+
+The lighting adapter now reads and validates `data-cleaning/outputs/aggregated/day_calendar.csv` and records its hash. Holiday metadata remains separate from the demand-inferred `day_type`. The university-observance field is a supplied calendar assumption based partly on later-year evidence, not verified historical building attendance.
+
+Weekday-only primary and extended results remain reproducible. Two additional holiday-excluded sensitivities use the same respective windows but exclude labelled university holidays consistently from calibration, coverage, energy and coincident peaks. No March calibration dates are removed. April excludes 8, 12, 15 and 16 April: 648 primary-window and 720 extended-window intervals per zone. All readings remain in the all-hours assessment; outside-hours energy is reclassified, not saved.
+
+The original lighting baseline needs no formula change: the cleaning update adds calendar labels without changing readings. It intentionally retains the original weekday-only definition. Compare holiday-adjusted scenario peaks against their own observed timestamps rather than treating a changed calendar as a physical reduction.
+
+The April special holiday is independently supported by the [Thai Ministry of Labour's 2019 announcement](https://www.mol.go.th/en/news/pol-gen-adul-promotes-safe-travels-during-songkran-for-thai-and-migrant-workers); substitute dates are listed in the [Ministry of Foreign Affairs 2019 calendar](https://image.mfa.go.th/mfa/0/mkKfL2iULZ/migrate_directory/information-20191008-174401-631551.pdf). These establish holiday dates, not individual building closure.
+
+Holiday-update verification: 31 unit tests pass, all four workflow notebooks execute successfully, and the streamed audit passes for 8,025,600 intervals across 10,560 zone/scenario combinations. All four calendar/window cases retain 17 reportable zones with zero modeled reduction and 16 withheld zones. Holiday exclusions improve Floor 2 operating-period coverage to 648/648 and 720/720 intervals; its observed aligned peak remains 114.824 kW. Building simultaneous operating coverage remains zero, so building impact is withheld. The original baseline code, saved baseline tables and source notebook remain unchanged; its execution was verified during this run.
+
+### Teammate review before merge
+
+- Preparation: `prepare_inputs.py` joins and validates the calendar; the preparation notebook displays the holiday dates and interval counts. Existing demand-inferred closure labels are preserved.
+- Calculations: `schedules.py` adds `primary_holiday_excluded` and `extended_holiday_excluded`; coverage validation uses the same schedule mask as the scenarios. The original weekday-only cases and baseline are retained.
+- Results: compare the four cases in `outputs/lighting/scenario_schedule_comparison.csv`, `lighting_schedule_comparison.csv` and `coincident_scenario_impact.csv`. Zero modeled reduction persists; the holiday-excluded Floor 2 coverage becomes 100%.
+- Verification: 31 unit tests and the full exported-output audit pass. `verification.json` records 8,025,600 checked intervals. Notebook markdown explains assumptions and interpretation limits.
+- Review the supplied university-observance assumption before merging. A public-holiday label does not verify vacancy, comfort-safe savings or actual main-meter impact. These changes are proposed on `lighting-analytics-pbl2` for teammate review.

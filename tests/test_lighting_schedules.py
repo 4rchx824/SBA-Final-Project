@@ -22,6 +22,14 @@ class ScheduleTests(unittest.TestCase):
             self.assertEqual(len(operating_index(settings, '2019-03-06', '2019-04-01')), expected[0])
             self.assertEqual(len(operating_index(settings, '2019-04-01', '2019-05-01')), expected[1])
 
+    def test_holiday_sensitivity_preserves_original_and_excludes_only_labelled_dates(self):
+        settings = {**SETTINGS, 'university_holiday_dates': ['2019-04-08', '2019-04-12', '2019-04-15', '2019-04-16']}
+        schedules = dict(schedule_settings(settings))
+        expected = {'primary': 792, 'extended': 880,
+                    'primary_holiday_excluded': 648, 'extended_holiday_excluded': 720}
+        for name, count in expected.items():
+            self.assertEqual(len(operating_index(schedules[name], '2019-04-01', '2019-05-01')), count)
+
     def test_transition_is_not_primary_operating_time(self):
         dates = pd.to_datetime(['2019-04-01 16:45', '2019-04-01 17:00', '2019-04-01 18:00', '2019-04-06 17:00'])
         self.assertEqual(operating_mask(dates, SETTINGS).tolist(), [True, False, False, False])
