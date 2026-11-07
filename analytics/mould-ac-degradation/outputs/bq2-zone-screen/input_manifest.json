@@ -1,0 +1,137 @@
+[
+  {
+    "path": "data-cleaning\\outputs\\analytics\\zone_hourly.csv",
+    "bytes": 33033387,
+    "sha256": "567272b23b961cf66f08251229837d3ff721c78b56e8b6cab91c884cfe596e46"
+  },
+  {
+    "path": "data-cleaning\\outputs\\analytics\\data_quality.csv",
+    "bytes": 22320,
+    "sha256": "a05f22dc5ee89ea5e7dc650ad69928c95cf3e7ad48c5e8ba2908a2ddc4d32cc9"
+  },
+  {
+    "path": "data-cleaning\\outputs\\analytics\\removed_readings.csv",
+    "bytes": 1816148,
+    "sha256": "56bb9cab8a44c02c7f688070a85c051a75b7a9e2a1fbc45f9c18f7cc154b6532"
+  },
+  {
+    "path": "baseline\\data\\bangkok_era5_hourly_2018-2019.csv",
+    "bytes": 461232,
+    "sha256": "08af9492d202eb658abf00c4b72806350c48c0bc55cac793e21efd47a19c827d"
+  },
+  {
+    "path": "mould-ac-degradation\\bq2_utils.ipynb",
+    "bytes": 9100,
+    "sha256": "4ce859cd216f0e6e296b4422d24a6e5d60de155e5874c0a3c04a052b81915e77"
+  },
+  {
+    "path": "baseline\\humidity_risk_baseline.py",
+    "bytes": 21725,
+    "sha256": "bd7ce8a521f9d8f5750bac651b16a883715ce8711703543920cf132ca0b39283"
+  },
+  {
+    "path": "data-cleaning\\main.ipynb",
+    "bytes": 2899330,
+    "sha256": "acb0c887be0bda59e147aa0fe7edf962c2001fe83ed36041930fd3e17b4f24eb"
+  },
+  {
+    "path": "data\\2018Floor3.csv",
+    "bytes": 30454456,
+    "sha256": "cba822a42d1a2d4148178a3645cf9302c39d67824d6e600f6ac47661a1df3b6b"
+  },
+  {
+    "path": "data\\2019Floor3.csv",
+    "bytes": 77837029,
+    "sha256": "b929bfd65c202183952d9188806dbd73707d91c1a60fa49dad5c5bca9339ec49"
+  },
+  {
+    "path": "data-cleaning\\outputs\\clean\\2018Floor3.csv",
+    "bytes": 30626097,
+    "sha256": "c9f882335ea4c2938526ea9f858ddcfbc3b6a0b923709bc7c862514c7b190adb"
+  },
+  {
+    "path": "data-cleaning\\outputs\\clean\\2019Floor3.csv",
+    "bytes": 77952088,
+    "sha256": "73680b0658b86c1675ee5bd6b57a09cd98442a18f1c2e69ade119259aeff6e57"
+  },
+  {
+    "path": "data\\2018Floor4.csv",
+    "bytes": 31993376,
+    "sha256": "30f75ca0a52699f59db10cb37c2215ae292d78abdd8b67ede3a6f612b10fc76a"
+  },
+  {
+    "path": "data\\2019Floor4.csv",
+    "bytes": 76980452,
+    "sha256": "9f140911e35ccf569e3203efafa801a400a50ced9618a13ae8d358f39061c66d"
+  },
+  {
+    "path": "data-cleaning\\outputs\\clean\\2018Floor4.csv",
+    "bytes": 32213386,
+    "sha256": "9ededde4923f7baf6daae31b6e2c1d921e965a64ba32703585ca74a42788194f"
+  },
+  {
+    "path": "data-cleaning\\outputs\\clean\\2019Floor4.csv",
+    "bytes": 77047519,
+    "sha256": "f06a1ed72508fc724cb3350dbd520c70264bfbf12b688d1a4c1f2b0d0ea56072"
+  },
+  {
+    "path": "data\\2018Floor5.csv",
+    "bytes": 33889944,
+    "sha256": "f11dc465b4cf806373b1c03ea5d9aa6d01a0adfa9d198595d9deefcdfc69a865"
+  },
+  {
+    "path": "data\\2019Floor5.csv",
+    "bytes": 76017547,
+    "sha256": "6acf6988c331399181ca481ad0109a3ce0acbf96d45a8f9cb9113146e3f1e9f3"
+  },
+  {
+    "path": "data-cleaning\\outputs\\clean\\2018Floor5.csv",
+    "bytes": 34094665,
+    "sha256": "dc63fcb5ca6d6d954eb9643f33c53b1204a058033641bd21927da53fe86bb3e1"
+  },
+  {
+    "path": "data-cleaning\\outputs\\clean\\2019Floor5.csv",
+    "bytes": 76056650,
+    "sha256": "e21d1b30a9962733aae1d5693c2b8d34514475908318ab58bfc005c453cff18b"
+  },
+  {
+    "path": "data\\2018Floor6.csv",
+    "bytes": 34471685,
+    "sha256": "dff1909d3ead1bc2b9c4e7107355fc670a018fb34e7645dda4a5a76fe264d2c3"
+  },
+  {
+    "path": "data\\2019Floor6.csv",
+    "bytes": 63135048,
+    "sha256": "6cfc3c6f3ffff2f3051da00dae512fc9d764fb32cd496d5833ab7ef077272c5b"
+  },
+  {
+    "path": "data-cleaning\\outputs\\clean\\2018Floor6.csv",
+    "bytes": 34689158,
+    "sha256": "7cee9551fbfe1abb81c5bc1e274eb65ca8b7ed8fc48b311f5759963f81db1e60"
+  },
+  {
+    "path": "data-cleaning\\outputs\\clean\\2019Floor6.csv",
+    "bytes": 68259067,
+    "sha256": "f5a9e7bce029716297b784681235062c37536ca64e2b57c4f0d7c4421323ab4c"
+  },
+  {
+    "path": "data\\2018Floor7.csv",
+    "bytes": 34728876,
+    "sha256": "31e62d4b6b54ff0bbe826a0b119decdff04c0e3e22f04cae7529c40bbc60bce2"
+  },
+  {
+    "path": "data\\2019Floor7.csv",
+    "bytes": 65194211,
+    "sha256": "c7e3a742d66c0556cea2607332ce4149cfcfe3e000c3e187bfbffe57d21e97a5"
+  },
+  {
+    "path": "data-cleaning\\outputs\\clean\\2018Floor7.csv",
+    "bytes": 34901151,
+    "sha256": "0d9a9476562a71d32ce365c47ab035fabf27718d293cc88d92b13d0f507c1a8c"
+  },
+  {
+    "path": "data-cleaning\\outputs\\clean\\2019Floor7.csv",
+    "bytes": 79563111,
+    "sha256": "1ed5f41ab923dedce60a17d8d9a1d352db34da1dfa5898303d14521252d17213"
+  }
+]
