@@ -26,11 +26,20 @@ Scope: Floors 3-7, zones 1, 2, 4 and 5 (20 zones), CU-BEMS building data with Ba
 
 ## Inputs from the rest of the project
 
-This folder must sit next to these project folders:
+This folder lives at `analytics/mould-ac-degradation/` and reads these project files (paths from the project root):
 
-- `data-cleaning/outputs/` — cleaned zone and floor tables (`analytics/zone_hourly.csv`, `clean/`)
-- `data/` — raw floor files (used by the Track B input checks)
-- `baseline/` — `humidity_risk_baseline.py` and the cached weather file `data/bangkok_era5_hourly_2018-2019.csv`
+| File | Used by |
+|---|---|
+| `data-cleaning/outputs/aggregated/zone_hourly.csv` | All three notebooks |
+| `data-cleaning/outputs/quality/data_quality.csv`, `removed_readings.csv` | `bq2_ac.ipynb` |
+| `data-cleaning/outputs/clean/` (14 cleaned floor files) | `bq2_ac.ipynb` |
+| `data/` (14 raw floor files) | `bq2_ac.ipynb` |
+| `baseline/data/bangkok_era5_hourly_2018-2019.csv` (weather) | All three notebooks |
+| `analytics/baseline/humidity_risk_baseline.py` (weather loader) | All three notebooks |
+
+**Before running `bq2_ac.ipynb`, run `data-cleaning/main.ipynb` once.** The cleaned floor files in `data-cleaning/outputs/clean/` are too large for Git, so they only exist after the cleaning notebook has run on your computer.
+
+If the project layout changes, update the paths in one place for each part: the first code cell of `bq2_utils.ipynb` (notebooks) and the path block near the top of `src/bq2/zone_screen.py` (AC screen).
 
 Install packages with `pip install -r requirements.txt` (run from this folder).
 

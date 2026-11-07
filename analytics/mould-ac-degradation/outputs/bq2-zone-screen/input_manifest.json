@@ -1,16 +1,16 @@
 [
   {
-    "path": "data-cleaning\\outputs\\analytics\\zone_hourly.csv",
+    "path": "data-cleaning\\outputs\\aggregated\\zone_hourly.csv",
     "bytes": 33033387,
     "sha256": "567272b23b961cf66f08251229837d3ff721c78b56e8b6cab91c884cfe596e46"
   },
   {
-    "path": "data-cleaning\\outputs\\analytics\\data_quality.csv",
+    "path": "data-cleaning\\outputs\\quality\\data_quality.csv",
     "bytes": 22320,
     "sha256": "a05f22dc5ee89ea5e7dc650ad69928c95cf3e7ad48c5e8ba2908a2ddc4d32cc9"
   },
   {
-    "path": "data-cleaning\\outputs\\analytics\\removed_readings.csv",
+    "path": "data-cleaning\\outputs\\quality\\removed_readings.csv",
     "bytes": 1816148,
     "sha256": "56bb9cab8a44c02c7f688070a85c051a75b7a9e2a1fbc45f9c18f7cc154b6532"
   },
@@ -20,19 +20,19 @@
     "sha256": "08af9492d202eb658abf00c4b72806350c48c0bc55cac793e21efd47a19c827d"
   },
   {
-    "path": "mould-ac-degradation\\bq2_utils.ipynb",
-    "bytes": 9100,
-    "sha256": "4ce859cd216f0e6e296b4422d24a6e5d60de155e5874c0a3c04a052b81915e77"
+    "path": "analytics\\mould-ac-degradation\\bq2_utils.ipynb",
+    "bytes": 9511,
+    "sha256": "6b4a5111c0d3f252bdafa83c939c66c0242bea98ec0af7bf84c47b306b5c4316"
   },
   {
-    "path": "baseline\\humidity_risk_baseline.py",
-    "bytes": 21725,
-    "sha256": "bd7ce8a521f9d8f5750bac651b16a883715ce8711703543920cf132ca0b39283"
+    "path": "analytics\\baseline\\humidity_risk_baseline.py",
+    "bytes": 21744,
+    "sha256": "3b63c8463018680b79f7a23341862614bae749faa7c8036f6b69751030721f0d"
   },
   {
     "path": "data-cleaning\\main.ipynb",
-    "bytes": 2899330,
-    "sha256": "acb0c887be0bda59e147aa0fe7edf962c2001fe83ed36041930fd3e17b4f24eb"
+    "bytes": 2928529,
+    "sha256": "329346fbf527b6e8703406427a4ee159ec27cd6c4b2be4afb12767099fefff8d"
   },
   {
     "path": "data\\2018Floor3.csv",

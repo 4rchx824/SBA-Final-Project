@@ -44,9 +44,9 @@ def load_inputs(root):
             raise ValueError(f"{kind} timestamps differ from the expected complete minute grid.")
         frames[kind] = joined
 
-    quality_path = root / "data-cleaning/outputs/analytics/data_quality.csv"
-    removed_path = root / "data-cleaning/outputs/analytics/removed_readings.csv"
-    hourly_path = root / "data-cleaning/outputs/analytics/zone_hourly.csv"
+    quality_path = root / "data-cleaning/outputs/quality/data_quality.csv"
+    removed_path = root / "data-cleaning/outputs/quality/removed_readings.csv"
+    hourly_path = root / "data-cleaning/outputs/aggregated/zone_hourly.csv"
     quality = pd.read_csv(quality_path).query("floor == 3 and zone == 1").copy()
     removed = pd.read_csv(removed_path, parse_dates=["Date"])
     removed = removed[(removed["floor"] == 3) & removed["column"].isin(CHANNELS)].copy()
@@ -59,8 +59,8 @@ def load_inputs(root):
         raise ValueError("F3-Z1 hourly export has an incomplete timestamp grid.")
     sources += [quality_path, removed_path, hourly_path,
                 root / "baseline/data/bangkok_era5_hourly_2018-2019.csv",
-                root / "data-cleaning/main.ipynb", root / "baseline/humidity_risk_baseline.py",
-                root / "mould-ac-degradation/bq2_utils.ipynb"]
+                root / "data-cleaning/main.ipynb", root / "analytics/baseline/humidity_risk_baseline.py",
+                root / "analytics/mould-ac-degradation/bq2_utils.ipynb"]
     manifest = []
     for path in sources:
         digest = hashlib.sha256()

@@ -150336,7 +150336,7 @@ Date,floor,zone,ac_kW,light_kW,plug_kW,temp_C,rh_pct,lux,hour,weekday,is_weekend
 2019-02-10 22:00:00,3,4,,0.0,0.02,,,,22,Sunday,True,2,weekend
 2019-02-10 23:00:00,3,4,,0.0,0.02,,,,23,Sunday,True,2,weekend
 2019-02-11 00:00:00,3,4,,0.0,0.02,,,,0,Monday,False,2,working day
-2019-02-11 01:00:00,3,4,,0.0,0.02,,,,1,Monday,False,2,working day
+2019-02-11 01:00:00,3,4,,0.0,0.03,,,,1,Monday,False,2,working day
 2019-02-11 02:00:00,3,4,,0.0,0.02,,,,2,Monday,False,2,working day
 2019-02-11 03:00:00,3,4,,0.0,0.02,,,,3,Monday,False,2,working day
 2019-02-11 04:00:00,3,4,,0.0,0.02,,,,4,Monday,False,2,working day

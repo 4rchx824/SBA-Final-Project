@@ -18,6 +18,17 @@ ZONES = [1, 2, 4, 5]
 PERIOD = pd.date_range(audit.START, audit.END, freq="min", name="Date")
 
 
+# Project file locations, relative to the project root (update here if the team repo layout changes)
+ANALYSIS_DIR = Path(__file__).resolve().parents[2]          # analytics/mould-ac-degradation
+ZONE_HOURLY = 'data-cleaning/outputs/aggregated/zone_hourly.csv'
+DATA_QUALITY = 'data-cleaning/outputs/quality/data_quality.csv'
+REMOVED_READINGS = 'data-cleaning/outputs/quality/removed_readings.csv'
+WEATHER_CSV = 'baseline/data/bangkok_era5_hourly_2018-2019.csv'
+BASELINE_CODE = 'analytics/baseline/humidity_risk_baseline.py'
+RAW_DIR = 'data'
+CLEAN_DIR = 'data-cleaning/outputs/clean'      # recreated by running data-cleaning/main.ipynb
+
+
 def digest(path):
     h = hashlib.sha256()
     with path.open("rb") as handle:
@@ -52,14 +63,13 @@ def audit_and_features(root, weather, helpers, output_dir):
     """Complete the quality pass and construct features, without fitting any models."""
     root, output_dir = Path(root), Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    hourly_path = root / 'data-cleaning/outputs/aggregated/zone_hourly.csv'
-    quality_path = root / 'data-cleaning/outputs/quality/data_quality.csv'
+    hourly_path = root / ZONE_HOURLY
+    quality_path = root / DATA_QUALITY
     hourly = pd.read_csv(hourly_path, parse_dates=['Date'])
     assert not hourly.duplicated(['floor', 'zone', 'Date']).any()
     quality = pd.read_csv(quality_path)
-    sources = [hourly_path, quality_path, root/'data-cleaning/outputs/quality/removed_readings.csv',
-               root/'baseline/data/bangkok_era5_hourly_2018-2019.csv',
-               root/'mould-ac-degradation/bq2_utils.ipynb', root/'baseline/humidity_risk_baseline.py',
+    sources = [hourly_path, quality_path, root/REMOVED_READINGS,
+               root/WEATHER_CSV, ANALYSIS_DIR/'bq2_utils.ipynb', root/BASELINE_CODE,
                root/'data-cleaning/main.ipynb']
     timelines, channels, sensor_rows, zone_rows, reconciliations, gaps = [], [], [], [], [], []
     features = {k: [] for k in ['daily_features', 'event_features', 'steady_on_features', 'event_eligibility']}
@@ -67,7 +77,7 @@ def audit_and_features(root, weather, helpers, output_dir):
     assert weather.index.is_unique and weather.reindex(expected_hours).notna().all().all()
     for floor in FLOORS:
         frames = {}
-        for kind, folder in [('raw','data'), ('clean','data-cleaning/outputs/clean')]:
+        for kind, folder in [('raw', RAW_DIR), ('clean', CLEAN_DIR)]:
             parts = []
             for year in [2018, 2019]:
                 path = root/folder/f'{year}Floor{floor}.csv'
