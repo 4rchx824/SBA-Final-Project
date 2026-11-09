@@ -30,7 +30,7 @@ def verify_outputs():
     keys = ['floor', 'zone', 'scenario_id']
     assert not summary.duplicated(keys).any(), 'Duplicate summary keys'
     expected = summary.set_index(keys)
-    calendar = pd.read_csv(ROOT / 'data-cleaning/outputs/aggregated/day_calendar.csv')
+    calendar = pd.read_csv(ROOT / 'outputs/data-cleaned/aggregated/day_calendar.csv')
     holidays = pd.to_datetime(calendar.loc[calendar.observed_by_university.eq(True), 'Date'])
     totals, reason_counts = {}, Counter()
     interval_count = 0

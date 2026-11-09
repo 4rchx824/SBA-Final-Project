@@ -121,7 +121,7 @@ This is retrospective telemetry analysis. Ambient lux is not occupied task-plane
 
 ## Holiday update (5 November 2026)
 
-The lighting adapter now reads and validates `data-cleaning/outputs/aggregated/day_calendar.csv` and records its hash. Holiday metadata remains separate from the demand-inferred `day_type`. The university-observance field is a supplied calendar assumption based partly on later-year evidence, not verified historical building attendance.
+The lighting adapter now reads and validates `outputs/data-cleaned/aggregated/day_calendar.csv` and records its hash. Holiday metadata remains separate from the demand-inferred `day_type`. The university-observance field is a supplied calendar assumption based partly on later-year evidence, not verified historical building attendance.
 
 Weekday-only primary and extended results remain reproducible. Two additional holiday-excluded sensitivities use the same respective windows but exclude labelled university holidays consistently from calibration, coverage, energy and coincident peaks. No March calibration dates are removed. April excludes 8, 12, 15 and 16 April: 648 primary-window and 720 extended-window intervals per zone. All readings remain in the all-hours assessment; outside-hours energy is reclassified, not saved.
 

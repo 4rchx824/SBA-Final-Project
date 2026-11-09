@@ -9,13 +9,13 @@ CU-BEMS analysis for Chamchuri 5, Bangkok: lighting demand, ambient-light patter
 - `analytics/references/`: original proposal, research paper and workload specifications.
 - `analytics/lighting/tests/`: lighting unit tests and full exported-output audit.
 - `outputs/lighting/`, `outputs/baseline/`, and `outputs/mould-ac-degradation/`: generated analytical CSVs, JSON receipts and charts.
-- `data/` and `data-cleaning/`: raw inputs and the separate upstream cleaning workflow. Cleaning outputs stay with that workflow.
+- `data/` and `data-cleaning/`: raw inputs and the separate upstream cleaning workflow. All generated cleaning outputs are stored under `outputs/data-cleaned/`.
 
 ## Getting started
 
 ### Set up the environment
 
-Use **Python 3.14 or 3.15** (check with `python --version`). The full workflow has been run on both; the cleaning notebook has also been run on Python 3.9. The requirements pick a compatible pandas automatically: pandas 3.0.6 or newer on Python 3.15, because the pandas 2.x line crashes when it parses dates on 3.15. Allow about 1 GB of free disk space for the virtual environment and another 1 GB for generated outputs.
+Use **Python 3.14 or 3.15** (check with `python --version`). The full workflow has been run on both; the cleaning notebook has also been run on Python 3.9. The requirements pick a compatible pandas automatically: pandas 3.0.6 or newer on Python 3.15, because the pandas 2.x line crashes when it parses dates on 3.15. Allow about 1 GB of free disk space for the virtual environment and at least 2 GB for generated outputs.
 
 From the repository root, create a virtual environment:
 
@@ -63,7 +63,7 @@ jupyter kernelspec list
 
 ### Run order
 
-1. **Cleaning:** run `data-cleaning/main.ipynb` (about 2 minutes). It recreates the cleaned files in `data-cleaning/outputs/clean/` (~700 MB, not stored in Git) and the aggregated tables and quality reports. Every later step needs these. Execution options and troubleshooting are in [`data-cleaning/README.md`](data-cleaning/README.md).
+1. **Cleaning:** run `data-cleaning/main.ipynb` (about 2 minutes). It creates the cleaned files in `outputs/data-cleaned/clean/` (about 750 MB; not stored in Git), along with aggregated tables, quality reports, and figures in `outputs/data-cleaned/`. Every later step reads from this canonical output location. Execution options and troubleshooting are in [`data-cleaning/README.md`](data-cleaning/README.md).
 2. **Baselines:** run the notebook for the question you are analysing: `baseline/lighting_peak_baseline.ipynb` (Q1) or `baseline/humidity_risk_baseline.ipynb` (Q2).
 3. **Lighting analytics:** run the commands below. The runner includes the lighting baseline notebook.
 

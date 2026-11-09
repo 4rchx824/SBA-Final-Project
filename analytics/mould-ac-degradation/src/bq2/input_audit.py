@@ -20,7 +20,7 @@ def load_inputs(root):
     """Read only needed columns; preserve source values and complete denominators."""
     full_index = pd.date_range(START, END, freq="min", name="Date")
     frames, timeline, sources = {}, [], []
-    for kind, folder in [("raw", "data"), ("clean", "data-cleaning/outputs/clean")]:
+    for kind, folder in [("raw", "data"), ("clean", "outputs/data-cleaned/clean")]:
         parts = []
         for year in (2018, 2019):
             path = root / folder / f"{year}Floor3.csv"
@@ -44,9 +44,9 @@ def load_inputs(root):
             raise ValueError(f"{kind} timestamps differ from the expected complete minute grid.")
         frames[kind] = joined
 
-    quality_path = root / "data-cleaning/outputs/quality/data_quality.csv"
-    removed_path = root / "data-cleaning/outputs/quality/removed_readings.csv"
-    hourly_path = root / "data-cleaning/outputs/aggregated/zone_hourly.csv"
+    quality_path = root / "outputs/data-cleaned/quality/data_quality.csv"
+    removed_path = root / "outputs/data-cleaned/quality/removed_readings.csv"
+    hourly_path = root / "outputs/data-cleaned/aggregated/zone_hourly.csv"
     quality = pd.read_csv(quality_path).query("floor == 3 and zone == 1").copy()
     removed = pd.read_csv(removed_path, parse_dates=["Date"])
     removed = removed[(removed["floor"] == 3) & removed["column"].isin(CHANNELS)].copy()

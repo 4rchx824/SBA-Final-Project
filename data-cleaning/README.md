@@ -1,6 +1,6 @@
 # Data cleaning
 
-This folder holds the data-cleaning notebook for the CU-BEMS dataset. [`main.ipynb`](main.ipynb) reads the raw floor-level CSVs in [`../data/`](../data/). Anything it produces goes into [`outputs/`](outputs/). Its dependencies are listed in [`requirements.txt`](requirements.txt).
+This folder holds the data-cleaning notebook for the CU-BEMS dataset. [`main.ipynb`](main.ipynb) reads the raw floor-level CSVs in [`../data/`](../data/). Generated files go into the project-root [`outputs/data-cleaned/`](../outputs/data-cleaned/) folder. Its dependencies are listed in [`requirements.txt`](requirements.txt).
 
 ## What the notebook does
 
@@ -31,10 +31,10 @@ Running the notebook (about 2 minutes) writes:
 
 | Folder | Contents |
 |---|---|
-| `outputs/clean/` | The 14 source files in their original format (same names and columns), cleaned: about 750 MB in total |
-| `outputs/aggregated/` | `building_15min.csv`, `floor_15min.csv`, `zone_hourly.csv`, `daily_summary.csv`, `day_calendar.csv` (one row per day: `day_type` plus holiday name, type, source and whether the university observes it) |
-| `outputs/quality/` | `data_quality.csv`, `removed_readings.csv`, `interpolated_runs.csv` |
-| `outputs/figures/` | Every chart in the notebook as a PNG, ready for a report, including side-by-side before/after comparisons (`9_*.png`) |
+| `outputs/data-cleaned/clean/` | The 14 source files in their original format (same names and columns), cleaned: about 750 MB in total; ignored by Git |
+| `outputs/data-cleaned/aggregated/` | `building_15min.csv`, `floor_15min.csv`, `zone_hourly.csv`, `daily_summary.csv`, `day_calendar.csv` (one row per day: `day_type` plus holiday name, type, source and whether the university observes it) |
+| `outputs/data-cleaned/quality/` | `data_quality.csv`, `removed_readings.csv`, `interpolated_runs.csv` |
+| `outputs/data-cleaned/figures/` | Every chart in the notebook as a PNG, ready for a report, including side-by-side before/after comparisons (`9_*.png`) |
 
 ## Run the notebook
 
@@ -75,8 +75,8 @@ All three options run the notebook with `data-cleaning/` as the working director
 from pathlib import Path
 
 DATA_DIR = Path("../data")
-OUTPUT_DIR = Path("outputs")
-OUTPUT_DIR.mkdir(exist_ok=True)
+OUTPUT_DIR = Path("../outputs/data-cleaned")
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 ```
 
 ## Adding packages
@@ -105,11 +105,11 @@ jupyter kernelspec uninstall sba-py315
 ## Output folder layout
 
 ```text
-outputs/
+outputs/data-cleaned/
 ├── aggregated/  # building_15min.csv, floor_15min.csv, zone_hourly.csv, daily_summary.csv, day_calendar.csv
 ├── clean/       # 14 cleaned minute-level floor/year CSVs
 ├── figures/     # Cleaning diagnostic figures
 └── quality/     # data_quality.csv, removed_readings.csv, interpolated_runs.csv
 ```
 
-The lighting adapter reads aggregate and quality paths separately from `analytics/lighting/config.json`. The baseline still reads `outputs/clean/`; its input path is unchanged. The five aggregated CSVs and the two existing quality reports remain tracked in Git at these locations. The interpolation log and large cleaned source files remain ignored and can be regenerated with this notebook.
+This is the only output location: the notebook does not create a second copy under `data-cleaning/`. Cleaned CSVs and the interpolation log are ignored by Git; the selected aggregate tables and quality reports remain trackable from the root output folder.

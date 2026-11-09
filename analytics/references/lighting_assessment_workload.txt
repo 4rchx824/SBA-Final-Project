@@ -40,7 +40,7 @@ The humidity notebooks and scripts belong to BQ2 and are not dependencies of thi
 
 ### Cleaned source files
 
-Use these existing generated files under `data-cleaning/outputs/clean/`:
+Use these existing generated files under `outputs/data-cleaned/clean/`:
 
 ```text
 2018Floor1.csv  2018Floor2.csv  2018Floor3.csv  2018Floor4.csv
@@ -49,7 +49,7 @@ Use these existing generated files under `data-cleaning/outputs/clean/`:
 2019Floor5.csv  2019Floor6.csv  2019Floor7.csv
 ```
 
-The March/April Floor 2 analysis uses `data-cleaning/outputs/clean/2019Floor2.csv`. The existing baseline loader requires all 14 files. Cleaned files are generated locally and are not committed to GitHub; regenerate them only if they are missing.
+The March/April Floor 2 analysis uses `outputs/data-cleaned/clean/2019Floor2.csv`. The existing baseline loader requires all 14 files. Cleaned files are generated locally and are not committed to GitHub; regenerate them only if they are missing.
 
 Relevant source columns are `Date`, `z{zone}_Light(kW)`, `z{zone}_Plug(kW)`, `z{zone}_AC{n}(kW)` and `z{zone}_S1(lux)`. Use the actual available channels in each zone; not every zone has AC or a lux sensor.
 
@@ -66,7 +66,7 @@ At the reviewed commit, these files are committed directly under `data-cleaning/
 | `data_quality.csv` | Sensor missingness and contextual warnings | Full-period missingness does not establish March/April coverage |
 | `removed_readings.csv` | Audit removed values and reasons | Does not enumerate all interpolated missing readings |
 
-**Path distinction:** the current `data-cleaning/main.ipynb` writes those six filenames to `data-cleaning/outputs/analytics/`, although the committed snapshots sit in `data-cleaning/outputs/`. Select one consistent output set and record the location. Do not silently mix snapshots and regenerated files. This is a path check, not a new cleaning task.
+The current `data-cleaning/main.ipynb` writes generated cleaning outputs to `outputs/data-cleaned/`. The `data-cleaning/outputs/` location mentioned in older commit snapshots is no longer used.
 
 ### Existing baseline outputs
 
@@ -86,7 +86,7 @@ They are generated outputs, not committed files in the reviewed tree. `lighting_
 
 ```mermaid
 flowchart TD
-    A["Completed: data-cleaning/main.ipynb"] --> B["data-cleaning/outputs/clean/ — cleaned CSVs"]
+    A["Completed: data-cleaning/main.ipynb"] --> B["outputs/data-cleaned/clean/ — cleaned CSVs"]
     A --> C["Supporting quality and calendar tables"]
     B --> D["Completed: baseline/lighting_peak_baseline.py"]
     D --> E["baseline/outputs/ — existing baseline tables"]
@@ -288,7 +288,7 @@ Acceptance checks:
 - [Committed cleaning outputs](https://github.com/4rchx824/SBA-Final-Project/tree/851207f480d9d2f7b62843452e5ebf1375b25d4f/data-cleaning/outputs)
 - [CU-BEMS dataset paper](https://doi.org/10.1038/s41597-020-00582-3): ceiling-mounted sensors and measurement context.
 
-Lighting-relevant figures reviewed under `data-cleaning/outputs/figures/`:
+Lighting-relevant figures reviewed under `outputs/data-cleaned/figures/`:
 
 | Purpose | Exact filenames |
 |---|---|

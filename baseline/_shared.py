@@ -14,7 +14,7 @@ EXPECTED_FILES = [
 
 def clean_data_directory():
     repo_root = Path(__file__).resolve().parents[1]
-    clean_dir = repo_root / "data-cleaning" / "outputs" / "clean"
+    clean_dir = repo_root / "outputs" / "data-cleaned" / "clean"
     missing = [name for name in EXPECTED_FILES if not (clean_dir / name).is_file()]
     if missing:
         examples = ", ".join(missing[:4])
@@ -22,7 +22,7 @@ def clean_data_directory():
         raise FileNotFoundError(
             "The cleaned CU-BEMS files are required before running this baseline. "
             f"Missing: {examples}{more}. Run data-cleaning/main.ipynb first; "
-            "it writes the required files to data-cleaning/outputs/clean/."
+            "it writes the required files to outputs/data-cleaned/clean/."
         )
     return clean_dir
 
