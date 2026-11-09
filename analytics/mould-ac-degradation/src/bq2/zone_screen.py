@@ -24,7 +24,7 @@ ZONE_HOURLY = 'data-cleaning/outputs/aggregated/zone_hourly.csv'
 DATA_QUALITY = 'data-cleaning/outputs/quality/data_quality.csv'
 REMOVED_READINGS = 'data-cleaning/outputs/quality/removed_readings.csv'
 WEATHER_CSV = 'baseline/data/bangkok_era5_hourly_2018-2019.csv'
-BASELINE_CODE = 'analytics/baseline/humidity_risk_baseline.py'
+BASELINE_CODE = 'baseline/humidity_risk_baseline.py'
 RAW_DIR = 'data'
 CLEAN_DIR = 'data-cleaning/outputs/clean'      # recreated by running data-cleaning/main.ipynb
 

@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from _shared import clean_data_directory, read_clean_file
+from baseline._shared import clean_data_directory, read_clean_file
 
 
 SENSOR_COLUMN = re.compile(
@@ -318,7 +318,7 @@ def _schedule_summary(hourly):
 
 def run_humidity_baseline(weather):
     clean_dir = clean_data_directory()
-    output_dir = Path(__file__).resolve().parents[2] / "outputs" / "baseline"
+    output_dir = Path(__file__).resolve().parents[1] / "outputs" / "baseline"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     features_by_zone = []

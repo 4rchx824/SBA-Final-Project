@@ -5,7 +5,7 @@ CU-BEMS analysis for Chamchuri 5, Bangkok: lighting demand, ambient-light patter
 ## Layout
 
 - `analytics/lighting/`: analytical code/configuration and executed preparation, assessment and scenario notebooks.
-- `analytics/baseline/`: descriptive lighting and humidity baseline code/notebooks.
+- `baseline/`: descriptive lighting and humidity baseline code/notebooks, plus cached weather input.
 - `analytics/references/`: original proposal, research paper and workload specifications.
 - `tests/`: unit tests and full exported-output audit.
 - `outputs/lighting/` and `outputs/baseline/`: generated analytical CSVs, JSON receipts and charts.
@@ -64,7 +64,7 @@ jupyter kernelspec list
 ### Run order
 
 1. **Cleaning:** run `data-cleaning/main.ipynb` (about 2 minutes). It recreates the cleaned files in `data-cleaning/outputs/clean/` (~700 MB, not stored in Git) and the aggregated tables and quality reports. Every later step needs these. Execution options and troubleshooting are in [`data-cleaning/README.md`](data-cleaning/README.md).
-2. **Baselines:** run the notebook for the question you are analysing: `analytics/baseline/lighting_peak_baseline.ipynb` (Q1) or `analytics/baseline/humidity_risk_baseline.ipynb` (Q2).
+2. **Baselines:** run the notebook for the question you are analysing: `baseline/lighting_peak_baseline.ipynb` (Q1) or `baseline/humidity_risk_baseline.ipynb` (Q2).
 3. **Lighting analytics:** run the commands below. The runner includes the lighting baseline notebook.
 
 ## Run lighting analytics
@@ -97,7 +97,7 @@ python analytics/check_lighting_freshness.py
 4. Run `python analytics/run_lighting.py`. This rebuilds the lighting baseline, inputs, assessment and scenarios, then runs the full audit.
 5. Run `python analytics/check_lighting_freshness.py` again. Only use the results once the workflow and freshness check both pass. If either fails, resolve the reported error before using the outputs.
 
-These steps cover the lighting workflow. For humidity analysis, also rerun `analytics/baseline/humidity_risk_baseline.ipynb`; the lighting freshness check does not validate humidity results.
+These steps cover the lighting workflow. For humidity analysis, also rerun `baseline/humidity_risk_baseline.ipynb`; the lighting freshness check does not validate humidity results.
 
 The freshness check does not download updates, so a pass does not mean your checkout contains the latest remote changes.
 It exits unsuccessfully if an audited source, implementation, or output is missing or changed,

@@ -35,7 +35,7 @@ This folder lives at `analytics/mould-ac-degradation/` and reads these project f
 | `data-cleaning/outputs/clean/` (14 cleaned floor files) | `bq2_ac.ipynb` |
 | `data/` (14 raw floor files) | `bq2_ac.ipynb` |
 | `baseline/data/bangkok_era5_hourly_2018-2019.csv` (weather) | All three notebooks |
-| `analytics/baseline/humidity_risk_baseline.py` (weather loader) | All three notebooks |
+| `baseline/humidity_risk_baseline.py` (weather loader) | All three notebooks |
 
 **Before running `bq2_ac.ipynb`, run `data-cleaning/main.ipynb` once.** The cleaned floor files in `data-cleaning/outputs/clean/` are too large for Git, so they only exist after the cleaning notebook has run on your computer.
 

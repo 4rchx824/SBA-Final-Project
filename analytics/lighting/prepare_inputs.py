@@ -14,7 +14,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[2]
 HERE = Path(__file__).resolve().parent
 OUTPUT = ROOT / 'outputs' / 'lighting'
-sys.path.insert(0, str(ROOT / 'analytics' / 'baseline'))
+sys.path.insert(0, str(ROOT / 'baseline'))
 from _shared import clean_data_directory, read_clean_file
 from lighting_peak_baseline import _build_zone_intervals
 from activity_states import add_interpolation_fractions
@@ -148,7 +148,7 @@ def prepare_inputs():
         raise ValueError('Saved baseline does not reconcile with cleaned inputs. Rerun the original lighting baseline.')
     out=OUTPUT; out.mkdir(parents=True, exist_ok=True)
     intervals.to_csv(out/'zone_15min.csv',index=False)
-    sources=sorted(clean_dir.glob('*Floor*.csv'))+supporting_paths+baseline_paths+[config_path,Path(__file__),HERE/'activity_states.py',HERE/'schedules.py',ROOT/'analytics'/'baseline'/'lighting_peak_baseline.py']
+    sources=sorted(clean_dir.glob('*Floor*.csv'))+supporting_paths+baseline_paths+[config_path,Path(__file__),HERE/'activity_states.py',HERE/'schedules.py',ROOT/'baseline'/'lighting_peak_baseline.py']
     if quality_path.exists(): sources.append(quality_path)
     revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     manifest={'source_revision':revision,'source_tree_dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),

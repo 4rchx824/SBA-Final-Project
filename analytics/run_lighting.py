@@ -10,7 +10,7 @@ from nbclient import NotebookClient
 
 ROOT = Path(__file__).resolve().parents[1]
 NOTEBOOKS = [
-    'analytics/baseline/lighting_peak_baseline.ipynb',
+    'baseline/lighting_peak_baseline.ipynb',
     'analytics/lighting/prepare_inputs.ipynb',
     'analytics/lighting/lighting_assessment.ipynb',
     'analytics/lighting/lighting_scenarios.ipynb',

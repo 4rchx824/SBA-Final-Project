@@ -9,6 +9,7 @@ The branch began with uncommitted schedule-window changes, which were preserved.
 ## Cleanup and changes
 
 1. Moved baseline code/notebooks to `analytics/baseline/` and its results to `outputs/baseline/`. Updated imports and notebook root discovery without changing baseline calculation formulas.
+   The baseline assets have since moved to the repository-root `baseline/` directory; current workflows and paths use that location.
 2. Kept lighting code, the active `config.json` and analytical notebooks in `analytics/lighting/`; redirected analytical exports to `outputs/lighting/`.
 3. Moved source PDFs and both supplied workload specifications to `analytics/references/`. They remain historical references, not current run guides.
 4. Consolidated analytics READMEs, revision notes and standalone findings into this record and the root README. Removed the unused historical scenario configuration and stale generated lighting outputs after regeneration.
@@ -20,12 +21,12 @@ The branch began with uncommitted schedule-window changes, which were preserved.
 
 Install `analytics/requirements.txt`, then run `python analytics/run_lighting.py` from the repository root. The runner executes and saves:
 
-1. `baseline/lighting_peak_baseline.ipynb`: descriptive baseline and Floor 2 context.
+1. `../baseline/lighting_peak_baseline.ipynb`: descriptive baseline and Floor 2 context.
 2. `lighting/prepare_inputs.ipynb`: cleaned-data adapter, baseline reconciliation, common-minute support, schema/calendar flags and input hashes.
 3. `lighting/lighting_assessment.ipynb`: lighting contribution, schedule exposure, power/lux relationships, matched-power sensitivity, activity evidence and coverage.
 4. `lighting/lighting_scenarios.ipynb`: March calibration, April scenarios, sensitivity, exclusion reasons, recomputed peaks, coincident coverage, combined export and full output audit.
 
-Notebook paths above are relative to `analytics/`. Errors stop execution. Run unit tests with `python -m unittest discover -s tests -v`; rerun the export audit independently with `python tests/verify_lighting_outputs.py`.
+Notebook paths above are relative to `analytics/` except the baseline notebook, which is relative to the repository root. Errors stop execution. Run unit tests with `python -m unittest discover -s tests -v`; rerun the export audit independently with `python tests/verify_lighting_outputs.py`.
 
 ## Data preparation
 

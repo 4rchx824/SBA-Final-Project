@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from _shared import clean_data_directory, read_clean_file
+from baseline._shared import clean_data_directory, read_clean_file
 
 
 POWER_COLUMN = re.compile(r"z(?P<zone>\d+)_(?:AC\d+|Light|Plug)\(kW\)")
@@ -144,7 +144,7 @@ def _lux_sensitivity(intervals):
 
 def run_lighting_baseline():
     clean_dir = clean_data_directory()
-    output_dir = Path(__file__).resolve().parents[2] / "outputs" / "baseline"
+    output_dir = Path(__file__).resolve().parents[1] / "outputs" / "baseline"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     intervals = _build_zone_intervals(clean_dir)

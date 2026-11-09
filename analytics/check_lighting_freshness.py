@@ -28,7 +28,8 @@ def snapshot(root=ROOT):
     paths.update(p for p in (root / 'outputs/lighting').rglob('*') if p.is_file())
     paths.update(p for p in (root / 'outputs/baseline').glob('lighting*') if p.is_file())
     paths.update((root / 'analytics').rglob('*.py'))
-    for relative in ['analytics/baseline/lighting_peak_baseline.ipynb',
+    paths.update((root / 'baseline').rglob('*.py'))
+    for relative in ['baseline/lighting_peak_baseline.ipynb',
                      'analytics/lighting/prepare_inputs.ipynb',
                      'analytics/lighting/lighting_assessment.ipynb',
                      'analytics/lighting/lighting_scenarios.ipynb']:

@@ -13,7 +13,7 @@ EXPECTED_FILES = [
 
 
 def clean_data_directory():
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = Path(__file__).resolve().parents[1]
     clean_dir = repo_root / "data-cleaning" / "outputs" / "clean"
     missing = [name for name in EXPECTED_FILES if not (clean_dir / name).is_file()]
     if missing:

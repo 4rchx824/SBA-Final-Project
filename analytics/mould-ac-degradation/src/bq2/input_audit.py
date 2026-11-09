@@ -59,7 +59,7 @@ def load_inputs(root):
         raise ValueError("F3-Z1 hourly export has an incomplete timestamp grid.")
     sources += [quality_path, removed_path, hourly_path,
                 root / "baseline/data/bangkok_era5_hourly_2018-2019.csv",
-                root / "data-cleaning/main.ipynb", root / "analytics/baseline/humidity_risk_baseline.py",
+                root / "data-cleaning/main.ipynb", root / "baseline/humidity_risk_baseline.py",
                 root / "analytics/mould-ac-degradation/bq2_utils.ipynb"]
     manifest = []
     for path in sources:
