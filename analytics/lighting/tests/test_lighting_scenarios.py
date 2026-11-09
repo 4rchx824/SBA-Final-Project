@@ -5,7 +5,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'analytics/lighting'))
+ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / 'analytics/lighting'))
 from lighting_scenarios import apply_scenario, summarize_scenario
 from prepare_inputs import zone_minute_support
 

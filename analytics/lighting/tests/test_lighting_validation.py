@@ -4,7 +4,8 @@ import unittest
 from pathlib import Path
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'analytics/lighting'))
+ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / 'analytics/lighting'))
 from validation_audit import build_validation_tables
 
 SETTINGS = dict(evaluation_start='2019-04-01 08:00', evaluation_end='2019-04-01 09:00',

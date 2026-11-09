@@ -6,7 +6,8 @@ import sys
 import tempfile
 import unittest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'analytics'))
+ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / 'analytics'))
 from check_lighting_freshness import check_freshness, snapshot, digest, RECEIPT
 
 
@@ -20,7 +21,7 @@ class FreshnessTests(unittest.TestCase):
             'outputs/lighting/scenario_intervals.csv.gz': 'details',
             'outputs/lighting/scenario_sensitivity.csv': 'summary',
             'input.csv': 'input',
-            'tests/verify_lighting_outputs.py': 'audit',
+            'analytics/lighting/tests/verify_lighting_outputs.py': 'audit',
             'analytics/model.py': 'model',
         }
         for relative, value in files.items():

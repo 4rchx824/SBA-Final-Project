@@ -7,7 +7,7 @@ CU-BEMS analysis for Chamchuri 5, Bangkok: lighting demand, ambient-light patter
 - `analytics/lighting/`: analytical code/configuration and executed preparation, assessment and scenario notebooks.
 - `baseline/`: descriptive lighting and humidity baseline code/notebooks, plus cached weather input.
 - `analytics/references/`: original proposal, research paper and workload specifications.
-- `tests/`: unit tests and full exported-output audit.
+- `analytics/lighting/tests/`: lighting unit tests and full exported-output audit.
 - `outputs/lighting/`, `outputs/baseline/`, and `outputs/mould-ac-degradation/`: generated analytical CSVs, JSON receipts and charts.
 - `data/` and `data-cleaning/`: raw inputs and the separate upstream cleaning workflow. Cleaning outputs stay with that workflow.
 
@@ -72,7 +72,7 @@ jupyter kernelspec list
 ```powershell
 python -m pip install -r analytics/requirements.txt
 python analytics/run_lighting.py
-python -m unittest discover -s tests -v
+python -m unittest discover -s analytics/lighting/tests -v
 ```
 
 The runner executes and saves the lighting baseline, preparation, assessment and scenario notebooks in order. It requires the 14 cleaned input files and current aggregate/quality tables from `data-cleaning/main.ipynb`. It does not rerun cleaning or fetch weather.

@@ -8,7 +8,7 @@ import sys
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[3]
 OUTPUT = ROOT / 'outputs/lighting'
 sys.path.insert(0, str(ROOT / 'analytics'))
 from check_lighting_freshness import snapshot

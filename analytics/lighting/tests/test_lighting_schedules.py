@@ -6,7 +6,7 @@ import unittest
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'analytics/lighting'))
 from schedules import operating_index, operating_mask, schedule_settings, transition_mask
 from assessment import schedule_comparison
