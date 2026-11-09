@@ -8,7 +8,7 @@ CU-BEMS analysis for Chamchuri 5, Bangkok: lighting demand, ambient-light patter
 - `baseline/`: descriptive lighting and humidity baseline code/notebooks, plus cached weather input.
 - `analytics/references/`: original proposal, research paper and workload specifications.
 - `tests/`: unit tests and full exported-output audit.
-- `outputs/lighting/` and `outputs/baseline/`: generated analytical CSVs, JSON receipts and charts.
+- `outputs/lighting/`, `outputs/baseline/`, and `outputs/mould-ac-degradation/`: generated analytical CSVs, JSON receipts and charts.
 - `data/` and `data-cleaning/`: raw inputs and the separate upstream cleaning workflow. Cleaning outputs stay with that workflow.
 
 ## Getting started
