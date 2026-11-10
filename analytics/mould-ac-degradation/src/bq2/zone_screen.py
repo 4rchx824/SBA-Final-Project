@@ -23,7 +23,10 @@ ANALYSIS_DIR = Path(__file__).resolve().parents[2]          # analytics/mould-ac
 ZONE_HOURLY = 'outputs/data-cleaned/aggregated/zone_hourly.csv'
 DATA_QUALITY = 'outputs/data-cleaned/quality/data_quality.csv'
 REMOVED_READINGS = 'outputs/data-cleaned/quality/removed_readings.csv'
-WEATHER_CSV = 'baseline/data/bangkok_era5_hourly_2018-2019.csv'
+WEATHER_CSV = (
+    'outputs/baseline/humidity_risk_baseline/'
+    'bangkok_era5_hourly_2018-2019.csv'
+)
 BASELINE_CODE = 'baseline/humidity_risk_baseline.py'
 RAW_DIR = 'data'
 CLEAN_DIR = 'outputs/data-cleaned/clean'      # recreated by running data-cleaning/main.ipynb

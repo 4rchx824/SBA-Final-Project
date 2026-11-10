@@ -69,8 +69,14 @@ def prepare_inputs():
     quality_dir = ROOT / config['quality_reports']
     supporting_paths = [support / f'{name}.csv' for name in ['daily_summary','zone_hourly','day_calendar']]
     supporting_paths += [quality_dir / f'{name}.csv' for name in ['data_quality','removed_readings']]
-    baseline_paths = [ROOT / 'outputs' / 'baseline' / name for name in
-                      ['lighting_zone_april_baseline.csv','lighting_floor2_april_baseline.csv','lighting_lux_sensitivity.csv']]
+    baseline_dir = ROOT / 'outputs' / 'baseline' / 'lighting_peak_baseline'
+    baseline_paths = [
+        baseline_dir / name for name in [
+            'lighting_zone_april_baseline.csv',
+            'lighting_floor2_april_baseline.csv',
+            'lighting_lux_sensitivity.csv',
+        ]
+    ]
     for path in supporting_paths + baseline_paths:
         if not path.exists():
             raise FileNotFoundError(f'Missing {path.relative_to(ROOT)}. Run cleaning then the original lighting baseline; no legacy fallback is used.')

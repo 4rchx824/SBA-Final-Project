@@ -79,7 +79,7 @@ The runner executes and saves the lighting baseline, preparation, assessment and
 
 Read [the process record](analytics/PROCESS.md) for methods, changes, output definitions and verified results. Large intermediate tables and generated PNGs remain locally reproducible; compact CSV/JSON outputs and executed notebooks are available for branch review.
 
-The retained humidity baseline is a separate workflow. It uses the Open-Meteo ERA5 cache under `outputs/weather/` and is not part of the lighting execution command.
+The humidity and lighting baseline notebooks write to `outputs/baseline/humidity_risk_baseline/` and `outputs/baseline/lighting_peak_baseline/`, respectively. The humidity workflow caches Open-Meteo ERA5 weather in its own output folder and is not part of the lighting execution command.
 
 ### Verify freshness after pulling or downloading results
 

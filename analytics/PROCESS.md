@@ -8,7 +8,7 @@ The branch began with uncommitted schedule-window changes, which were preserved.
 
 ## Cleanup and changes
 
-1. Moved baseline code/notebooks to `analytics/baseline/` and its results to `outputs/baseline/`. Updated imports and notebook root discovery without changing baseline calculation formulas.
+1. Moved baseline code/notebooks to `baseline/` and organized their generated results under `outputs/baseline/{humidity_risk_baseline,lighting_peak_baseline}/`. Updated imports and notebook root discovery without changing baseline calculation formulas.
    The baseline assets have since moved to the repository-root `baseline/` directory; current workflows and paths use that location.
 2. Kept lighting code, the active `config.json` and analytical notebooks in `analytics/lighting/`; redirected analytical exports to `outputs/lighting/`.
 3. Moved source PDFs and both supplied workload specifications to `analytics/references/`. They remain historical references, not current run guides.

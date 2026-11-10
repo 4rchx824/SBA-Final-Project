@@ -14,10 +14,9 @@ __pycache__/
 
 # ===== Baseline =====
 # Large regenerated outputs (~1.5 GB): run the appropriate baseline notebook to recreate them
-outputs/baseline/*.png
-outputs/baseline/humidity_zone_hourly_baseline.csv
-# Downloaded Open-Meteo ERA5 cache (regenerable from the baseline notebook)
-outputs/weather/
+# Generated baseline tables, figures, and weather cache (regenerable from each notebook).
+outputs/baseline/humidity_risk_baseline/
+outputs/baseline/lighting_peak_baseline/
 
 # Tracked cleaning tables and reports (everything else in these folders is regenerated).
 # Additional regenerated outputs remain ignored.

@@ -70,7 +70,7 @@ The current `data-cleaning/main.ipynb` writes generated cleaning outputs to `out
 
 ### Existing baseline outputs
 
-The baseline generates these exact filenames under `baseline/outputs/`:
+The lighting baseline generates these exact filenames under `outputs/baseline/lighting_peak_baseline/`:
 
 ```text
 lighting_zone_april_baseline.csv
@@ -89,7 +89,7 @@ flowchart TD
     A["Completed: data-cleaning/main.ipynb"] --> B["outputs/data-cleaned/clean/ — cleaned CSVs"]
     A --> C["Supporting quality and calendar tables"]
     B --> D["Completed: baseline/lighting_peak_baseline.py"]
-    D --> E["baseline/outputs/ — existing baseline tables"]
+    D --> E["outputs/baseline/lighting_peak_baseline/ — existing baseline tables"]
     B --> F["NEW: lighting-analysis/prepare_inputs.py"]
     C --> F
     F --> G["NEW: lighting-analysis/outputs/zone_15min.csv"]

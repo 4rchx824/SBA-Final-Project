@@ -141,7 +141,10 @@ def run_assessment():
     matched_bands,matched_summary=matched_day_night(intervals,config)
     # Inferred closures/weekends can confound day/night comparisons; retain the original and show a sensitivity.
     _, working_summary = matched_day_night(intervals,config,working_days_only=True)
-    baseline=pd.read_csv(ROOT/'outputs'/'baseline'/'lighting_zone_april_baseline.csv')
+    baseline = pd.read_csv(
+        ROOT / 'outputs' / 'baseline' / 'lighting_peak_baseline'
+        / 'lighting_zone_april_baseline.csv'
+    )
     # Quality warnings are audit metadata, not aggregated measurements.
     quality=pd.read_csv(ROOT/config['quality_reports']/'data_quality.csv')
     quality_notes=quality.loc[quality.unit.eq('lux')].groupby(['floor','zone']).note.apply(lambda x:'; '.join(x.dropna().unique()))

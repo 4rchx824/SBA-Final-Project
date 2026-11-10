@@ -87,7 +87,10 @@ def summarize_scenario(out, reportable):
 def run_scenarios():
     data, manifest = load_inputs(); settings = manifest['settings']; options = settings['scenarios']
     legacy_dates = operating_index(legacy_settings(settings), settings['calibration_start'], settings['evaluation_start'])
-    legacy = pd.read_csv(ROOT/'outputs'/'baseline'/'lighting_zone_april_baseline.csv').set_index(['floor','zone'])
+    legacy = pd.read_csv(
+        ROOT / 'outputs' / 'baseline' / 'lighting_peak_baseline'
+        / 'lighting_zone_april_baseline.csv'
+    ).set_index(['floor', 'zone'])
     summaries, reasons, primary_parts = [], [], []
     interval_path = OUTPUT/'scenario_intervals.csv.gz'
     # Stream one zone/policy at a time instead of retaining every sensitivity series in memory.

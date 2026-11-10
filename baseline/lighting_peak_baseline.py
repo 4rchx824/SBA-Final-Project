@@ -144,7 +144,10 @@ def _lux_sensitivity(intervals):
 
 def run_lighting_baseline():
     clean_dir = clean_data_directory()
-    output_dir = Path(__file__).resolve().parents[1] / "outputs" / "baseline"
+    output_dir = (
+        Path(__file__).resolve().parents[1]
+        / "outputs" / "baseline" / "lighting_peak_baseline"
+    )
     output_dir.mkdir(parents=True, exist_ok=True)
 
     intervals = _build_zone_intervals(clean_dir)

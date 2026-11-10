@@ -58,7 +58,8 @@ def load_inputs(root):
     if not hourly.index.equals(expected_hours):
         raise ValueError("F3-Z1 hourly export has an incomplete timestamp grid.")
     sources += [quality_path, removed_path, hourly_path,
-                root / "baseline/data/bangkok_era5_hourly_2018-2019.csv",
+                root / "outputs/baseline/humidity_risk_baseline/"
+                "bangkok_era5_hourly_2018-2019.csv",
                 root / "data-cleaning/main.ipynb", root / "baseline/humidity_risk_baseline.py",
                 root / "analytics/mould-ac-degradation/bq2_utils.ipynb"]
     manifest = []
