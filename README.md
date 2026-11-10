@@ -5,7 +5,7 @@ CU-BEMS analysis for Chamchuri 5, Bangkok: lighting demand, ambient-light patter
 ## Layout
 
 - `analytics/lighting/`: analytical code/configuration and executed preparation, assessment and scenario notebooks.
-- `baseline/`: descriptive lighting and humidity baseline code/notebooks, plus cached weather input.
+- `baseline/`: descriptive lighting and humidity baseline code/notebooks.
 - `analytics/references/`: original proposal, research paper and workload specifications.
 - `analytics/lighting/tests/`: lighting unit tests and full exported-output audit.
 - `outputs/lighting/`, `outputs/baseline/`, and `outputs/mould-ac-degradation/`: generated analytical CSVs, JSON receipts and charts.
@@ -80,6 +80,30 @@ The runner executes and saves the lighting baseline, preparation, assessment and
 Read [the process record](analytics/PROCESS.md) for methods, changes, output definitions and verified results. Large intermediate tables and generated PNGs remain locally reproducible; compact CSV/JSON outputs and executed notebooks are available for branch review.
 
 The humidity and lighting baseline notebooks write to `outputs/baseline/humidity_risk_baseline/` and `outputs/baseline/lighting_peak_baseline/`, respectively. The humidity workflow caches Open-Meteo ERA5 weather in its own output folder and is not part of the lighting execution command.
+
+## Run BQ2: AC degradation and mould risk
+
+The BQ2 analysis covers Floors 3–7, zones 1, 2, 4 and 5. Before starting, run the cleaning notebook and the humidity baseline notebook as described in [Run order](#run-order). The humidity baseline downloads and caches Bangkok ERA5 weather on its first run; the BQ2 notebooks use that cache.
+
+Install the BQ2 dependencies from the repository root:
+
+```powershell
+python -m pip install -r analytics/mould-ac-degradation/requirements.txt
+```
+
+In VS Code or Jupyter, run these notebooks in order:
+
+1. [`bq2_humidity.ipynb`](analytics/mould-ac-degradation/notebooks/bq2_humidity.ipynb) — creates zone humidity and mould-risk metrics.
+2. [`bq2_ac.ipynb`](analytics/mould-ac-degradation/notebooks/bq2_ac.ipynb) — screens AC performance and writes an inspection shortlist. It may take several minutes.
+3. [`bq2_risk_matrix.ipynb`](analytics/mould-ac-degradation/notebooks/bq2_risk_matrix.ipynb) — combines the first two notebooks' saved results into the final zone matrix and presentation charts.
+
+The notebooks load shared helpers from [`bq2_utils.ipynb`](analytics/mould-ac-degradation/bq2_utils.ipynb). All generated files go under `outputs/mould-ac-degradation/`, in per-notebook folders:
+
+- `bq2-humidity/`: `zone_mould_metrics.csv`, `time_of_wetness.png`, and `damp_drivers.png`.
+- `bq2-zone-screen/`: AC-screen tables, including `inspection_shortlist.csv`.
+- `bq2-risk-matrix/`: `combined_zone_matrix.csv` and the final charts: `weather_vs_ac_and_mould.png`, `wet_zones_ac_on_off.png`, `ac_drying_2018_vs_2019.png`, and `risk_matrix.png`.
+
+The charts are inspection aids, not diagnoses: sensors measure room air rather than surfaces, the surface-humidity estimate assumes a surface 2 °C cooler than room air, and maintenance, setpoint, and mould-inspection records are unavailable. The 2018-versus-2019 comparison covers only two summers, with a sensor firmware-update gap between them. See the [BQ2 workflow README](analytics/mould-ac-degradation/README.md) for its input inventory and more detail.
 
 ### Verify freshness after pulling or downloading results
 
