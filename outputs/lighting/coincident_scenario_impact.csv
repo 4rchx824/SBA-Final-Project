@@ -1,9 +1,0 @@
-scope,schedule_id,operating_window,simultaneous_intervals,expected_intervals,coverage_pct,observed_baseline_peak_kW,paired_observed_peak_reduction_kW,reported_peak_reduction_kW,status
-building,primary,08:00–17:00,0,792,0.0,,,,insufficient simultaneous coverage
-Floor 2,primary,08:00–17:00,789,792,99.62121212121212,114.82399999999998,0.0,0.0,aligned submeter scenario only; comfort/main-meter unvalidated
-building,extended,08:00–18:00,0,880,0.0,,,,insufficient simultaneous coverage
-Floor 2,extended,08:00–18:00,877,880,99.6590909090909,114.82399999999998,0.0,0.0,aligned submeter scenario only; comfort/main-meter unvalidated
-building,primary_holiday_excluded,08:00–17:00,0,648,0.0,,,,insufficient simultaneous coverage
-Floor 2,primary_holiday_excluded,08:00–17:00,648,648,100.0,114.82399999999998,0.0,0.0,aligned submeter scenario only; comfort/main-meter unvalidated
-building,extended_holiday_excluded,08:00–18:00,0,720,0.0,,,,insufficient simultaneous coverage
-Floor 2,extended_holiday_excluded,08:00–18:00,720,720,100.0,114.82399999999998,0.0,0.0,aligned submeter scenario only; comfort/main-meter unvalidated

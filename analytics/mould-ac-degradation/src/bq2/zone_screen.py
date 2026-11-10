@@ -20,13 +20,16 @@ PERIOD = pd.date_range(audit.START, audit.END, freq="min", name="Date")
 
 # Project file locations, relative to the project root (update here if the team repo layout changes)
 ANALYSIS_DIR = Path(__file__).resolve().parents[2]          # analytics/mould-ac-degradation
-ZONE_HOURLY = 'data-cleaning/outputs/aggregated/zone_hourly.csv'
-DATA_QUALITY = 'data-cleaning/outputs/quality/data_quality.csv'
-REMOVED_READINGS = 'data-cleaning/outputs/quality/removed_readings.csv'
-WEATHER_CSV = 'baseline/data/bangkok_era5_hourly_2018-2019.csv'
-BASELINE_CODE = 'analytics/baseline/humidity_risk_baseline.py'
+ZONE_HOURLY = 'outputs/data-cleaned/aggregated/zone_hourly.csv'
+DATA_QUALITY = 'outputs/data-cleaned/quality/data_quality.csv'
+REMOVED_READINGS = 'outputs/data-cleaned/quality/removed_readings.csv'
+WEATHER_CSV = (
+    'outputs/baseline/humidity_risk_baseline/'
+    'bangkok_era5_hourly_2018-2019.csv'
+)
+BASELINE_CODE = 'baseline/humidity_risk_baseline.py'
 RAW_DIR = 'data'
-CLEAN_DIR = 'data-cleaning/outputs/clean'      # recreated by running data-cleaning/main.ipynb
+CLEAN_DIR = 'outputs/data-cleaned/clean'      # recreated by running data-cleaning/main.ipynb
 
 
 def digest(path):

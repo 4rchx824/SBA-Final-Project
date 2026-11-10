@@ -8,28 +8,28 @@ __pycache__/
 .DS_Store
 
 # ===== Data Cleaning =====
-# Large regenerated outputs (~700 MB): run data-cleaning/main.ipynb to recreate them
-data-cleaning/outputs/clean/
+# All cleaning outputs are generated under the project-root outputs directory.
+/data-cleaning/outputs/
+/outputs/data-cleaned/clean/
 
 # ===== Baseline =====
 # Large regenerated outputs (~1.5 GB): run the appropriate baseline notebook to recreate them
-outputs/baseline/*.png
-outputs/baseline/humidity_zone_hourly_baseline.csv
-# Downloaded Open-Meteo ERA5 cache (regenerable from the baseline notebook)
-outputs/weather/
+# Generated baseline tables, figures, and weather cache (regenerable from each notebook).
+outputs/baseline/humidity_risk_baseline/
+outputs/baseline/lighting_peak_baseline/
 
 # Tracked cleaning tables and reports (everything else in these folders is regenerated).
 # Additional regenerated outputs remain ignored.
-data-cleaning/outputs/aggregated/*
-!data-cleaning/outputs/aggregated/building_15min.csv
-!data-cleaning/outputs/aggregated/floor_15min.csv
-!data-cleaning/outputs/aggregated/zone_hourly.csv
-!data-cleaning/outputs/aggregated/daily_summary.csv
+outputs/data-cleaned/aggregated/*
+!outputs/data-cleaned/aggregated/building_15min.csv
+!outputs/data-cleaned/aggregated/floor_15min.csv
+!outputs/data-cleaned/aggregated/zone_hourly.csv
+!outputs/data-cleaned/aggregated/daily_summary.csv
 # Day-by-day calendar with holiday labels
-!data-cleaning/outputs/aggregated/day_calendar.csv
-data-cleaning/outputs/quality/*
-!data-cleaning/outputs/quality/data_quality.csv
-!data-cleaning/outputs/quality/removed_readings.csv
+!outputs/data-cleaned/aggregated/day_calendar.csv
+outputs/data-cleaned/quality/*
+!outputs/data-cleaned/quality/data_quality.csv
+!outputs/data-cleaned/quality/removed_readings.csv
 # Large regenerated analytical intermediates; compact CSV/JSON results are shared.
 outputs/lighting/zone_15min.csv
 outputs/lighting/lighting_activity_intervals.csv

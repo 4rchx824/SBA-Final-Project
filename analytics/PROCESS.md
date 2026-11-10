@@ -8,11 +8,12 @@ The branch began with uncommitted schedule-window changes, which were preserved.
 
 ## Cleanup and changes
 
-1. Moved baseline code/notebooks to `analytics/baseline/` and its results to `outputs/baseline/`. Updated imports and notebook root discovery without changing baseline calculation formulas.
+1. Moved baseline code/notebooks to `baseline/` and organized their generated results under `outputs/baseline/{humidity_risk_baseline,lighting_peak_baseline}/`. Updated imports and notebook root discovery without changing baseline calculation formulas.
+   The baseline assets have since moved to the repository-root `baseline/` directory; current workflows and paths use that location.
 2. Kept lighting code, the active `config.json` and analytical notebooks in `analytics/lighting/`; redirected analytical exports to `outputs/lighting/`.
 3. Moved source PDFs and both supplied workload specifications to `analytics/references/`. They remain historical references, not current run guides.
 4. Consolidated analytics READMEs, revision notes and standalone findings into this record and the root README. Removed the unused historical scenario configuration and stale generated lighting outputs after regeneration.
-5. Kept unit tests and a new full-output audit in `tests/`. Preserved raw data and the separate upstream cleaning workflow/review. Local historical backup material under `tmp/` is ignored and is not a pipeline dependency.
+5. Kept unit tests and a new full-output audit in `analytics/lighting/tests/`. Preserved raw data and the separate upstream cleaning workflow/review. Local historical backup material under `tmp/` is ignored and is not a pipeline dependency.
 6. Added scenario-specific peak timestamps, peak-shift flags, lighting kW/share at the original policy peak, distinct April power/paired-lux exclusion reasons and explicitly labelled repair-free simultaneous coverage.
 7. Rebuilt analytical notebooks with inline figures and structured CSV/JSON outputs; removed generated recommendation documents from the analytical workflow.
 
@@ -20,12 +21,12 @@ The branch began with uncommitted schedule-window changes, which were preserved.
 
 Install `analytics/requirements.txt`, then run `python analytics/run_lighting.py` from the repository root. The runner executes and saves:
 
-1. `baseline/lighting_peak_baseline.ipynb`: descriptive baseline and Floor 2 context.
+1. `../baseline/lighting_peak_baseline.ipynb`: descriptive baseline and Floor 2 context.
 2. `lighting/prepare_inputs.ipynb`: cleaned-data adapter, baseline reconciliation, common-minute support, schema/calendar flags and input hashes.
 3. `lighting/lighting_assessment.ipynb`: lighting contribution, schedule exposure, power/lux relationships, matched-power sensitivity, activity evidence and coverage.
 4. `lighting/lighting_scenarios.ipynb`: March calibration, April scenarios, sensitivity, exclusion reasons, recomputed peaks, coincident coverage, combined export and full output audit.
 
-Notebook paths above are relative to `analytics/`. Errors stop execution. Run unit tests with `python -m unittest discover -s tests -v`; rerun the export audit independently with `python tests/verify_lighting_outputs.py`.
+Notebook paths above are relative to `analytics/` except the baseline notebook, which is relative to the repository root. Errors stop execution. Run unit tests with `python -m unittest discover -s analytics/lighting/tests -v`; rerun the export audit independently with `python analytics/lighting/tests/verify_lighting_outputs.py`.
 
 ## Data preparation
 
@@ -120,7 +121,7 @@ This is retrospective telemetry analysis. Ambient lux is not occupied task-plane
 
 ## Holiday update (5 November 2026)
 
-The lighting adapter now reads and validates `data-cleaning/outputs/aggregated/day_calendar.csv` and records its hash. Holiday metadata remains separate from the demand-inferred `day_type`. The university-observance field is a supplied calendar assumption based partly on later-year evidence, not verified historical building attendance.
+The lighting adapter now reads and validates `outputs/data-cleaned/aggregated/day_calendar.csv` and records its hash. Holiday metadata remains separate from the demand-inferred `day_type`. The university-observance field is a supplied calendar assumption based partly on later-year evidence, not verified historical building attendance.
 
 Weekday-only primary and extended results remain reproducible. Two additional holiday-excluded sensitivities use the same respective windows but exclude labelled university holidays consistently from calibration, coverage, energy and coincident peaks. No March calibration dates are removed. April excludes 8, 12, 15 and 16 April: 648 primary-window and 720 extended-window intervals per zone. All readings remain in the all-hours assessment; outside-hours energy is reclassified, not saved.
 

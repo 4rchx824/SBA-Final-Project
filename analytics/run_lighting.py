@@ -10,7 +10,7 @@ from nbclient import NotebookClient
 
 ROOT = Path(__file__).resolve().parents[1]
 NOTEBOOKS = [
-    'analytics/baseline/lighting_peak_baseline.ipynb',
+    'baseline/lighting_peak_baseline.ipynb',
     'analytics/lighting/prepare_inputs.ipynb',
     'analytics/lighting/lighting_assessment.ipynb',
     'analytics/lighting/lighting_scenarios.ipynb',
@@ -32,7 +32,7 @@ def main():
         client.execute()
         nbformat.write(notebook, path)
         print(f'Saved {relative}', flush=True)
-    subprocess.run([sys.executable, str(ROOT / 'tests/verify_lighting_outputs.py')], check=True)
+    subprocess.run([sys.executable, str(ROOT / 'analytics/lighting/tests/verify_lighting_outputs.py')], check=True)
     print('All lighting notebooks executed and outputs audited; receipt: outputs/lighting/verification.json', flush=True)
 
 

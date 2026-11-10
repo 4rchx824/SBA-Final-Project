@@ -26,16 +26,20 @@ def snapshot(root=ROOT):
     manifest = json.loads((root / 'outputs/lighting/run_manifest.json').read_text())
     paths = {root / p for p in manifest['sources']}
     paths.update(p for p in (root / 'outputs/lighting').rglob('*') if p.is_file())
-    paths.update(p for p in (root / 'outputs/baseline').glob('lighting*') if p.is_file())
+    paths.update(
+        p for p in (root / 'outputs/baseline/lighting_peak_baseline').glob('lighting*')
+        if p.is_file()
+    )
     paths.update((root / 'analytics').rglob('*.py'))
-    for relative in ['analytics/baseline/lighting_peak_baseline.ipynb',
+    paths.update((root / 'baseline').rglob('*.py'))
+    for relative in ['baseline/lighting_peak_baseline.ipynb',
                      'analytics/lighting/prepare_inputs.ipynb',
                      'analytics/lighting/lighting_assessment.ipynb',
                      'analytics/lighting/lighting_scenarios.ipynb']:
         if (root / relative).exists():
             paths.add(root / relative)
     paths.update((root / 'analytics').rglob('*requirements.txt'))
-    paths.add(root / 'tests/verify_lighting_outputs.py')
+    paths.add(root / 'analytics/lighting/tests/verify_lighting_outputs.py')
     paths.discard(root / RECEIPT)
     return {p.relative_to(root).as_posix(): digest(p) for p in sorted(paths)}
 
