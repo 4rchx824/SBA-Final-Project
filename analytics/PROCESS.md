@@ -103,7 +103,7 @@ Paths below are relative to `outputs/lighting/`.
 | `assessment_manifest.json`, `scenario_manifest.json`, `verification.json` | Implementation provenance and audit receipt |
 | `lighting_assessment_figures/`, `lighting_scenario_figures/` | Charts also embedded in executed notebooks |
 
-All generated tables, JSON receipts and figures under the root `outputs/` folder are reproducible and ignored by Git. Executed notebooks contain reviewable results; rerun the workflow to create the local output bundle. There is one active configuration; obsolete output schemas are removed.
+Large shared/activity interval tables, compressed scenarios and PNGs are reproducible and ignored by Git. Compact CSV/JSON results remain reviewable. There is one active configuration; obsolete output schemas are removed.
 
 ## Interpretation limits
 
