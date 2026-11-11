@@ -31,14 +31,8 @@ def build_validation_tables(intervals, settings):
                                      simultaneous_intervals=count,
                                      coverage_pct=100 * count / len(dates) if len(dates) else float('nan')))
     daytime = evaluation.loc[evaluation.Date.isin(expected[operating])]
-    lux = daytime.lux.dropna()
-    headroom = []
-    # These are the existing proposal targets, not newly validated comfort requirements.
-    for target in settings.get('scenarios', {}).get('lux_targets', [100, 150, 200, 300, 500]):
-        above = int(lux.ge(target).sum()) if len(lux) else None
-        headroom.append(dict(target_lux=target, valid_lux_intervals=len(lux),
-                             maximum_ambient_lux=lux.max(), intervals_at_or_above_target=above,
-                             status=('unavailable: no valid lux' if not len(lux) else
-                                     'no observed headroom under target' if above == 0 else
-                                     'target reached; control response remains unvalidated')))
-    return pd.DataFrame(coverage), pd.DataFrame(headroom)
+    observations = daytime.groupby(['floor', 'zone']).lux.agg(
+        valid_lux_intervals='count', median_ambient_lux='median', maximum_ambient_lux='max').reset_index()
+    observations['status'] = observations.valid_lux_intervals.map(
+        lambda count: 'observed ambient lux; comfort unverified' if count else 'unavailable: no valid lux')
+    return pd.DataFrame(coverage), observations

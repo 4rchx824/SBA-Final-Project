@@ -71,10 +71,13 @@ Weekday 17:00-18:00 is transition time, not measured vacancy. Outside-primary-ho
 
 ## Conditional scenario methods
 
-Primary: strict complete-cleaned support, March demand p95, 500 lux, 20% cap and 80% period coverage gate. The full grid covers two schedules, two support policies, two gates (80/95%), five targets (100/150/200/300/500 lux) and four caps (0/5/10/20%) for all 33 zones.
+Primary: strict complete-cleaned support; March demand P95 **and** zone-specific March lux P95 as joint investigation triggers; 80% period coverage and at least 96 March lux observations. P90/P97.5 lux are predefined sensitivities. Calibrate each zone/window/policy separately using March only. Require a nonconstant lux series with a positive cutoff; include measured zero and retain missing readings as missing. Use linear percentile interpolation and strict exceedance, so ties are not automatically flagged.
 
-The illustrative response is `r = min(cap, max(0, 1 - target / ambient_lux))`; scenario demand is `total - r * lighting`. Only lighting changes. A valid high-demand trigger, sufficient evidence and positive ambient-light headroom are required. The response is not calibrated fixture behaviour.
+The percentile identifies unusually bright conditions relative to that zone's March telemetry. It is not a minimum illumination requirement or a proven daylight contribution. April evaluates the frozen method; no percentile is selected for producing the largest April reduction. This retrospective method specification is not prospective preregistration.
 
+Eligible intervals also exceeding the March demand trigger receive illustrative electrical what-ifs of 0/5/10/20% of observed lighting power (20% primary). `scenario_total = total - cap * lighting`; AC and plugs remain unchanged. A cap is an assumed electrical response, not a calibrated fixture response or comfort-safe saving. Compare candidate hours and outcomes across caps, percentiles, coverage gates, policies and calendar windows.
+
+All investigation lux cutoffs are calculated from each zone’s March observations. No manually selected absolute lux benchmark or proportional lux-response formula is applied. A recorded maximum cannot establish occupied task-plane requirements.
 Recompute both peaks over identical observed timestamps, including no-action intervals. Record peak times (first timestamp for ties), shifts, lighting contribution, conditional kW/%/kWh and calibration/evaluation coverage. Report distinct exclusion statuses. Zero-cap scenarios must reproduce baseline observations exactly.
 
 Export all-hours, primary-window and extended-window simultaneous coverage separately, with complete-cleaned and repair-free policies labelled. Sum aligned zones before taking a maximum. Withhold coincident estimates below the coverage gate. These are submeter models, not independent main-meter validation.
@@ -94,26 +97,13 @@ Paths below are relative to `outputs/lighting/`.
 | `scenario_sensitivity.csv`, `scenario_schedule_comparison.csv` | Full grid and primary-rule schedule comparison |
 | `scenario_intervals.csv.gz`, `scenario_exclusion_reasons.csv` | Exact modeled intervals and binding reason counts |
 | `building_coincidence_audit.csv`, `coincident_scenario_impact.csv` | Simultaneous coverage and aligned peak comparisons |
-| `lighting_target_validation.csv` | Baseline-compatible April operating-window lux/headroom by schedule |
+| `lighting_lux_observations.csv` | Measured April operating-window lux count, median and maximum by zone |
+| `lighting_lux_calibration.csv` | March per-zone percentile cutoffs, counts, coverage and support flags |
 | `combined_lighting_summary.csv`, `analysis_summary.json` | Joined evidence/scenarios and machine-readable outcomes |
 | `assessment_manifest.json`, `scenario_manifest.json`, `verification.json` | Implementation provenance and audit receipt |
 | `lighting_assessment_figures/`, `lighting_scenario_figures/` | Charts also embedded in executed notebooks |
 
 Large shared/activity interval tables, compressed scenarios and PNGs are reproducible and ignored by Git. Compact CSV/JSON results remain reviewable. There is one active configuration; obsolete output schemas are removed.
-
-## Verification and results
-
-Verified on 1 November 2026:
-
-- All four lighting workflow notebooks executed successfully: 19 code cells, zero cell errors, eight embedded charts. Notebook schemas were validated and the schedule/coincidence charts were visually inspected.
-- All 30 unit tests passed, including synthetic positive reductions, peak shifts, missing demand, shared-minute arithmetic, frozen March calibration, repair-free coverage and schedule energy accounting.
-- The streamed export audit passed for all **4,414,080 intervals across 5,280 zone/scenario combinations**. It checks arithmetic, missingness, caps, eligibility, unique keys, schedule windows, reconstructed peaks/energy, exclusion counts, reporting masks and source hashes. See `outputs/lighting/verification.json`.
-- Both primary and extended windows have **17 reportable zones with zero modeled peak reduction and 16 withheld zones**. Withheld: nine without lux sensors, five with insufficient March calibration, one with insufficient April power coverage and one with insufficient April paired coverage. No tested grid setting produces a positive reported peak reduction.
-- Maximum baseline-compatible April operating-window ambient lux is **86.40 lux** for both schedules, below all tested targets. This is explicitly a 15-minute operating-window measure, not an unlabelled raw-minute maximum.
-- Building simultaneous power coverage is **0/792 primary operating intervals** and **0/880 extended operating intervals**; building impact is withheld. All-hours coverage is **24/2,880 complete-cleaned intervals**, or **8/2,880 repair-free intervals**. These definitions explain the previously conflicting figures.
-- Floor 2 has **789/792 primary** and **877/880 extended** complete-cleaned operating intervals. Its aligned observed peak is **114.824 kW**, with zero conditional peak reduction under the primary rule. This is not a verified main-meter saving.
-
-Source manifests preserve the execution-time revision plus file hashes; these identify the analytical inputs and implementation used for the saved results. Large intermediate files are available locally and regenerated by the runner. The humidity baseline was path-adjusted but not rerun or validated as a new BQ2 analysis.
 
 ## Interpretation limits
 
@@ -129,7 +119,6 @@ The original lighting baseline needs no formula change: the cleaning update adds
 
 The April special holiday is independently supported by the [Thai Ministry of Labour's 2019 announcement](https://www.mol.go.th/en/news/pol-gen-adul-promotes-safe-travels-during-songkran-for-thai-and-migrant-workers); substitute dates are listed in the [Ministry of Foreign Affairs 2019 calendar](https://image.mfa.go.th/mfa/0/mkKfL2iULZ/migrate_directory/information-20191008-174401-631551.pdf). These establish holiday dates, not individual building closure.
 
-Holiday-update verification: 31 unit tests pass, all four workflow notebooks execute successfully, and the streamed audit passes for 8,025,600 intervals across 10,560 zone/scenario combinations. All four calendar/window cases retain 17 reportable zones with zero modeled reduction and 16 withheld zones. Holiday exclusions improve Floor 2 operating-period coverage to 648/648 and 720/720 intervals; its observed aligned peak remains 114.824 kW. Building simultaneous operating coverage remains zero, so building impact is withheld. The original baseline code, saved baseline tables and source notebook remain unchanged; its execution was verified during this run.
 
 ### Teammate review before merge
 
@@ -138,3 +127,25 @@ Holiday-update verification: 31 unit tests pass, all four workflow notebooks exe
 - Results: compare the four cases in `outputs/lighting/scenario_schedule_comparison.csv`, `lighting_schedule_comparison.csv` and `coincident_scenario_impact.csv`. Zero modeled reduction persists; the holiday-excluded Floor 2 coverage becomes 100%.
 - Verification: 31 unit tests and the full exported-output audit pass. `verification.json` records 8,025,600 checked intervals. Notebook markdown explains assumptions and interpretation limits.
 - Review the supplied university-observance assumption before merging. A public-holiday label does not verify vacancy, comfort-safe savings or actual main-meter impact. These changes are proposed on `lighting-analytics-pbl2` for teammate review.
+
+## March-calibrated lux method (12 November 2026)
+
+Implemented the March-percentile investigation method described above and removed the manually selected absolute lux benchmark scenarios. Updated configuration, March calibration, April eligibility, conditional electrical arithmetic, exports, notebook explanations and audit checks together. The original descriptive baseline is unchanged.
+
+`lighting_lux_calibration.csv` records per-zone/window/policy/gate/percentile cutoffs, March observation counts, coverage and support. `scenario_summary.csv` contains only primary March-P95 cases; the investigation cutoff is `lux_trigger_lux`, with no absolute-target field. The sensitivity table records `trigger_method`, `lux_quantile` and `response_model`. `reported_investigation_hours` is withheld when reporting gates fail; zero is distinct from unavailable evidence.
+
+Interpretation for review: prioritize zones where candidate hours recur across reasonable percentile/calendar/support choices, then inspect their all-hours lighting/plug activity and demand patterns. This ranks investigation opportunities; it does not identify confirmed vacancy, prove over-lighting or validate comfort-preserving reductions. Site measurements and fixture response would still be needed for operational deployment.
+
+The runner performs the full export audit once, after saving all notebooks; manual notebook execution must be followed by the standalone audit command.
+
+### Verified April results for the March-percentile method
+
+All four workflow notebooks executed; 40 unit tests pass. The full streamed audit passed for 4,815,360 intervals across 6,336 zone/scenario combinations, including independent reconstruction of March cutoffs and checks for the conditional electrical response. The original baseline source notebook and calculations are preserved.
+
+Under the primary weekday 08:00–17:00 / strict / 80% gate / March-P95-lux case, 17 zones are reportable and 16 are withheld. Reportable candidates total **19.25 zone-hours** in April; overlapping zone-hours must not be interpreted as building elapsed hours. P90/P97.5 produce 43.5/8.25 zone-hours, respectively. These are sensitivity results, not alternatives selected to maximise savings.
+
+Floor 2 Zone 2 has 4.75/3.25/2.25 candidate hours at P90/P95/P97.5, making it a more robust investigation priority. Zones 1 and 4 each have 0.25 hours at P95 and none at P97.5; avoid strong conclusions from those isolated intervals. Zone 3 has no joint demand/lux flags under these three cases, which does not establish no occupancy or no physical savings opportunity.
+
+The primary 20% electrical what-if yields a positive zone-peak reduction only in Floor 7 Zone 1 (approximately 0.447 kW, 1.05% of its policy baseline peak). That positive peak outcome disappears at P97.5. It is sensitive to the investigation rule and is not verified comfort-preserving or building-wide savings. Floor 2 individual and aligned peaks remain unchanged even where conditional energy reductions are nonzero. Building-wide simultaneous coverage still does not support a reported impact.
+
+Cutoffs use cleaned telemetry and may include interpolated readings under the complete-cleaned policy; complete coverage is not proof of raw observed-only data. Ambient sensors, calendar labels and plug activity do not establish task-plane comfort or attendance. Next analytical use: inspect Zone 2's flagged timestamps against demand/activity profiles; any operational control still requires independent fixture and comfort validation.

@@ -1,5 +1,6 @@
 """Meaningful controls on scenario arithmetic, missingness and minute support."""
 import sys
+import json
 import unittest
 from pathlib import Path
 import numpy as np
@@ -7,7 +8,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'analytics/lighting'))
-from lighting_scenarios import apply_scenario, summarize_scenario
+from lighting_scenarios import apply_scenario, summarize_scenario, calibrate_lux_trigger
 from prepare_inputs import zone_minute_support
 
 
@@ -17,9 +18,53 @@ class LightingScenarioTests(unittest.TestCase):
                             index=pd.date_range('2019-04-01 08:00',periods=3,freq='15min'))
 
     def apply(self,series=None,**kwargs):
-        defaults=dict(trigger=5.,calibration_ok=True,evaluation_ok=True,has_lux_sensor=True,target=100,cap=.5)
+        defaults=dict(trigger=5.,calibration_ok=True,evaluation_ok=True,has_lux_sensor=True,lux_trigger=100,cap=.5)
         defaults.update(kwargs)
         return apply_scenario(self.series() if series is None else series,**defaults)
+
+    def test_primary_method_has_no_fixed_lux_benchmarks(self):
+        options = json.loads((ROOT / 'analytics/lighting/config.json').read_text())['scenarios']
+        self.assertEqual(options['primary_lux_quantile'], .95)
+        self.assertEqual(options['lux_quantiles'], [.90, .95, .975])
+        self.assertNotIn('fixed_reference_lux', options)
+        self.assertNotIn('primary_target_lux', options)
+
+    def test_march_trigger_does_not_learn_from_april(self):
+        march = self.series().rename(columns={'ambient_lux': 'ignored'})
+        march['ambient_lux'] = [10., 20., 30.]
+        march.index = pd.date_range('2019-03-06 08:00', periods=3, freq='15min')
+        april = self.series()
+        combined = pd.concat([march, april])
+        before = calibrate_lux_trigger(combined.loc[combined.index.month == 3], .95, 1., 3)
+        combined.loc[combined.index.month == 4, 'ambient_lux'] = 100000.
+        after = calibrate_lux_trigger(combined.loc[combined.index.month == 3], .95, 1., 3)
+        self.assertEqual(before, after)
+        self.assertEqual(before['lux_trigger_lux'], 29.)
+
+    def test_lux_calibration_withholds_sparse_or_flat_data(self):
+        march = self.series()
+        march['ambient_lux'] = [0., 10., 20.]
+        fit = calibrate_lux_trigger(march, .95, 1., 3)
+        self.assertTrue(fit['lux_calibration_supported'])
+        self.assertEqual(fit['march_lux_valid_intervals'], 3)
+        self.assertFalse(calibrate_lux_trigger(march, .95, 1., 4)['lux_calibration_supported'])
+        march['ambient_lux'] = 80.
+        self.assertFalse(calibrate_lux_trigger(march, .95, 1., 3)['lux_calibration_supported'])
+        march['ambient_lux'] = np.nan
+        fit = calibrate_lux_trigger(march, .95, 1., 3)
+        out = self.apply(lux_trigger=fit['lux_trigger_lux'], lux_calibration_ok=False)
+        self.assertTrue(out.reduction_kW.eq(0).all())
+        self.assertTrue(out.eligibility_reason.eq('insufficient March lux calibration').all())
+
+    def test_percentile_selects_candidates_without_becoming_a_dimming_target(self):
+        data = self.series()
+        data['ambient_lux'] = [101., 100., 99.]
+        out = self.apply(data, lux_trigger=100., cap=.2, trigger=0.)
+        self.assertEqual(out.investigation_flag.tolist(), [True, False, False])
+        self.assertEqual(out.reduction_kW.tolist(), [.8, 0., 0.])
+        no_change = self.apply(data, lux_trigger=100., cap=0., trigger=0.)
+        self.assertEqual(no_change.investigation_flag.tolist(), out.investigation_flag.tolist())
+        self.assertTrue(no_change.reduction_kW.eq(0).all())
 
     def test_peak_is_recomputed_after_original_peak_falls(self):
         out=self.apply();summary=summarize_scenario(out,True)
@@ -57,11 +102,11 @@ class LightingScenarioTests(unittest.TestCase):
             self.assertTrue(out.eligibility_reason.eq(reason).all())
             self.assertTrue(pd.isna(summarize_scenario(out,False)['reported_peak_reduction_kW']))
 
-    def test_below_target_is_a_rule_zero_not_negative_reduction(self):
+    def test_below_lux_trigger_is_a_rule_zero_not_negative_reduction(self):
         data=self.series();data['ambient_lux']=50
         out=self.apply(data)
         self.assertTrue(out.reduction_kW.eq(0).all())
-        self.assertEqual(out.eligibility_reason.iloc[0],'no headroom under target')
+        self.assertEqual(out.eligibility_reason.iloc[0],'below March lux trigger')
 
     def test_missing_lux_and_valid_zero_lux_have_distinct_reasons(self):
         data=self.series();data.loc[data.index[0],'ambient_lux']=np.nan;data.loc[data.index[1],'ambient_lux']=0
@@ -79,9 +124,9 @@ class LightingScenarioTests(unittest.TestCase):
         out=self.apply(data)
         self.assertEqual(out.high_demand_event.nunique(),2)
 
-    def test_invalid_targets_are_rejected(self):
+    def test_invalid_supported_lux_triggers_are_rejected(self):
         for target in [0,-1,np.nan]:
-            with self.assertRaises(ValueError):self.apply(target=target)
+            with self.assertRaises(ValueError):self.apply(lux_trigger=target)
 
     def test_common_minutes_exclude_lighting_when_other_power_is_missing(self):
         dates=pd.date_range('2019-03-06 08:00',periods=15,freq='min')

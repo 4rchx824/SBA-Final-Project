@@ -28,12 +28,14 @@ class LightingValidationTests(unittest.TestCase):
     def test_missing_lux_does_not_become_proven_zero_headroom(self):
         data = self.data(); data['lux'] = float('nan')
         _, headroom = build_validation_tables(data, SETTINGS)
-        self.assertTrue(headroom.intervals_at_or_above_target.isna().all())
+        self.assertTrue(headroom.valid_lux_intervals.eq(0).all())
+        self.assertTrue(headroom.maximum_ambient_lux.isna().all())
         self.assertTrue(headroom.status.eq('unavailable: no valid lux').all())
 
-    def test_low_lux_supports_rule_outcome_without_claiming_savings(self):
+    def test_observed_lux_summary_has_no_arbitrary_threshold(self):
         _, headroom = build_validation_tables(self.data(), SETTINGS)
-        self.assertTrue(headroom.intervals_at_or_above_target.eq(0).all())
+        self.assertNotIn('target_lux', headroom.columns)
+        self.assertTrue(headroom.valid_lux_intervals.eq(4).all())
         self.assertTrue(headroom.maximum_ambient_lux.eq(80).all())
 
     def test_repair_free_coverage_is_distinct_and_requires_provenance(self):

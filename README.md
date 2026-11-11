@@ -77,7 +77,7 @@ python -m unittest discover -s analytics/lighting/tests -v
 
 The runner executes and saves the lighting baseline, preparation, assessment and scenario notebooks in order. It requires the 14 cleaned input files and current aggregate/quality tables from `data-cleaning/main.ipynb`. It does not rerun cleaning or fetch weather.
 
-Read [the process record](analytics/PROCESS.md) for methods, changes, output definitions and verified results. Large intermediate tables and generated PNGs remain locally reproducible; compact CSV/JSON outputs and executed notebooks are available for branch review.
+Read [the process record](analytics/PROCESS.md) for methods, changes, output definitions and verified results. Executed notebooks contain reviewable tables and figures. CSV/JSON outputs, intermediate tables and PNGs are generated locally by the workflow; a Git pull alone does not supply the generated result bundle.
 
 The humidity and lighting baseline notebooks write to `outputs/baseline/humidity_risk_baseline/` and `outputs/baseline/lighting_peak_baseline/`, respectively. The humidity workflow caches Open-Meteo ERA5 weather in its own output folder and is not part of the lighting execution command.
 
@@ -145,3 +145,5 @@ Weekdays 08:00–17:00 are used as an assumed office schedule, supported by publ
 The original baseline retains 08:00–18:00; scheduling and activity investigation covers all 24 hours. Ambient lux is not task-plane illuminance; activity proxies are not attendance labels. Zero conditional reduction does not establish zero physical savings potential. Comfort-preserving savings and independent building-wide impact remain unverified.
 
 The holiday calendar is included in the lighting inputs. Additional holiday-excluded sensitivities compare both office windows against the original weekday-only cases; see the [holiday update](analytics/PROCESS.md#holiday-update-5-november-2026). Holiday observance is an assumption, not measured attendance.
+
+Lighting investigation uses **each zone’s March lux P95**, alongside March demand P95, then evaluates April. Lux P90/P97.5 are sensitivity checks. All lux cutoffs are calculated from March observations; no manually selected absolute lux benchmark is applied. Candidate intervals receive explicitly conditional 0/5/10/20% lighting-power what-ifs. Percentiles identify unusual conditions, not comfort requirements or confirmed waste. See the [March-calibrated method](analytics/PROCESS.md#march-calibrated-lux-method-12-november-2026) for calibration, coverage and interpretation.

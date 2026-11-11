@@ -24,31 +24,48 @@ def policy_series(group, policy):
     return pd.DataFrame(dict(baseline_total_kW=total, lighting_kW=light, ambient_lux=lux), index=group.index)
 
 
-def apply_scenario(series, trigger, calibration_ok, evaluation_ok, has_lux_sensor, target, cap):
-    """Preserve unknown demand and label why each observed interval takes no action."""
-    if not np.isfinite(target) or target <= 0 or not 0 <= cap <= 1:
-        raise ValueError('Target must be positive and power-reduction cap must be in [0, 1].')
+def calibrate_lux_trigger(march, quantile, gate, minimum_intervals):
+    """Freeze a zone/policy/window reference using March only, including measured zero."""
+    if not 0 < quantile < 1:
+        raise ValueError('Lux quantile must be strictly between zero and one.')
+    values = march.ambient_lux.where(march.ambient_lux.ge(0))
+    count = int(values.notna().sum())
+    coverage = values.notna().mean()
+    cutoff = values.quantile(quantile, interpolation='linear')
+    supported = (count >= minimum_intervals and coverage >= gate and
+                 pd.notna(cutoff) and cutoff > 0 and values.nunique() > 1)
+    return dict(lux_trigger_lux=cutoff, march_lux_valid_intervals=count,
+                march_lux_coverage_pct=100*coverage, lux_calibration_supported=bool(supported))
+
+
+def apply_scenario(series, trigger, calibration_ok, evaluation_ok, has_lux_sensor,
+                   lux_trigger, cap, lux_calibration_ok=True):
+    """Investigate joint March-threshold exceedances; apply an assumed electrical cap."""
+    if (lux_calibration_ok and (not np.isfinite(lux_trigger) or lux_trigger <= 0)) or not 0 <= cap <= 1:
+        raise ValueError('Supported lux trigger must be positive and cap must be in [0, 1].')
     out = series.copy()
     reason = pd.Series('eligible', index=out.index)
-    # Ordered reasons retain the first binding limitation, with missing demand explicit.
+    # Retain the first binding limitation, with missing evidence distinct from zero opportunity.
     conditions = [
         (out.baseline_total_kW.isna(), 'missing power'),
         (pd.Series(cap == 0, index=out.index), 'no-change reference'),
         (pd.Series(not calibration_ok, index=out.index), 'insufficient calibration'),
         (pd.Series(not evaluation_ok, index=out.index), 'insufficient evaluation coverage'),
         (pd.Series(not has_lux_sensor, index=out.index), 'no lux sensor'),
+        (pd.Series(not lux_calibration_ok, index=out.index), 'insufficient March lux calibration'),
         (out.ambient_lux.isna(), 'missing lux'),
         (out.ambient_lux.le(0), 'nonpositive lux'),
         (out.lighting_kW.isna(), 'missing lighting'),
         (out.baseline_total_kW.le(trigger), 'below demand trigger'),
-        (out.ambient_lux.le(target), 'no headroom under target')]
+        (out.ambient_lux.le(lux_trigger), 'below March lux trigger')]
     for condition, label in conditions:
         reason.loc[reason.eq('eligible') & condition] = label
-    fraction = (1 - target/out.ambient_lux).clip(lower=0, upper=cap)
-    reduction = (fraction*out.lighting_kW).where(reason.eq('eligible'), 0.)
-    reduction = reduction.where(out.baseline_total_kW.notna())
-    out['reduction_kW'] = reduction
-    out['scenario_total_kW'] = out.baseline_total_kW - reduction
+    # A lux percentile selects candidates; it is not a level that dimming must preserve.
+    out['investigation_flag'] = (out.baseline_total_kW.gt(trigger) & out.ambient_lux.gt(lux_trigger) &
+                                 out.lighting_kW.notna() & out.ambient_lux.gt(0) &
+                                 calibration_ok & lux_calibration_ok & has_lux_sensor)
+    out['reduction_kW'] = (cap*out.lighting_kW).where(reason.eq('eligible'), 0.).where(out.baseline_total_kW.notna())
+    out['scenario_total_kW'] = out.baseline_total_kW - out.reduction_kW
     out['eligibility_reason'] = reason
     high = out.baseline_total_kW.gt(trigger) & out.baseline_total_kW.notna() if pd.notna(trigger) else pd.Series(False, index=out.index)
     breaks = high.ne(high.shift()) | out.index.to_series().diff().ne(pd.Timedelta(minutes=15))
@@ -81,11 +98,15 @@ def summarize_scenario(out, reportable):
                 reported_energy_reduction_kWh=energy if reportable else np.nan,
                 high_demand_intervals=int(out.high_demand_event.notna().sum()),
                 high_demand_events=int(out.high_demand_event.nunique()),
-                modeled_action_intervals=int(out.reduction_kW.gt(0).sum()))
+                modeled_action_intervals=int(out.reduction_kW.gt(0).sum()),
+                investigation_intervals=int(out.investigation_flag.sum()),
+                reported_investigation_hours=out.investigation_flag.sum()/4 if reportable else np.nan)
 
 
 def run_scenarios():
     data, manifest = load_inputs(); settings = manifest['settings']; options = settings['scenarios']
+    if options['primary_lux_quantile'] not in options['lux_quantiles']:
+        raise ValueError('Primary lux percentile must be included in the investigation grid.')
     legacy_dates = operating_index(legacy_settings(settings), settings['calibration_start'], settings['evaluation_start'])
     legacy = pd.read_csv(
         ROOT / 'outputs' / 'baseline' / 'lighting_peak_baseline'
@@ -115,39 +136,53 @@ def run_scenarios():
                         calibration_ok = march_coverage >= gate and pd.notna(trigger)
                         lux_coverage = april.ambient_lux.notna().mean()
                         evaluation_ok = april_coverage >= gate and (lux_coverage >= gate if sensor else True)
-                        for target in options['lux_targets']:
+                        for quantile in options['lux_quantiles']:
+                            calibration = calibrate_lux_trigger(march, quantile, gate, options['minimum_lux_calibration_intervals'])
+                            reference = calibration['lux_trigger_lux']
                             for cap in options['power_reduction_caps']:
-                                scenario_id = f'{schedule_id}_{policy}_coverage{gate:g}_lux{target}_cap{cap:g}'
-                                out = apply_scenario(april, trigger, calibration_ok, evaluation_ok, sensor, target, cap)
-                                reportable = calibration_ok and evaluation_ok and sensor and out.ambient_lux.notna().any()
-                                summary = summarize_scenario(out, reportable)
-                                summary.update(floor=floor, zone=zone, scenario_id=scenario_id, schedule_id=schedule_id, operating_window=label(schedule), policy=policy,
-                                               period_coverage_gate=gate, target_lux=target, reduction_cap=cap,
-                                               march_p95_kW=trigger, legacy_march_p95_kW=original_trigger, legacy_trigger_reproduced=True, march_expected_intervals=len(march_dates),
-                                               march_valid_intervals=int(march.baseline_total_kW.notna().sum()),
-                                               march_coverage_pct=100*march_coverage, april_expected_intervals=len(april_dates),
-                                               april_valid_intervals=int(april.baseline_total_kW.notna().sum()),
-                                               april_coverage_pct=100*april_coverage, april_lux_coverage_pct=100*lux_coverage, has_lux_sensor=sensor,
-                                               status=('insufficient calibration' if not calibration_ok else
-                                                       'insufficient April power coverage' if april_coverage < gate else
-                                                       'no lux sensor' if not sensor else
-                                                       'insufficient April paired coverage' if lux_coverage < gate else
-                                                       'no valid lux' if not out.ambient_lux.notna().any() else
-                                                       'modeled result; comfort unvalidated'))
-                                summaries.append(summary)
+                                reference_id = f'q{quantile:g}'
+                                scenario_id = f'{schedule_id}_{policy}_coverage{gate:g}_{reference_id}_cap{cap:g}'
+                                out = apply_scenario(april, trigger, calibration_ok, evaluation_ok, sensor, reference, cap,
+                                                     calibration['lux_calibration_supported'])
+                                reportable = (calibration_ok and evaluation_ok and sensor and
+                                              calibration['lux_calibration_supported'] and out.ambient_lux.notna().any())
+                                result = summarize_scenario(out, reportable)
+                                result.update(floor=floor, zone=zone, scenario_id=scenario_id, schedule_id=schedule_id,
+                                              operating_window=label(schedule), policy=policy, period_coverage_gate=gate,
+                                              trigger_method='march_percentile', lux_quantile=quantile, response_model='conditional_cap',
+                                              reduction_cap=cap, **calibration,
+                                              march_p95_kW=trigger, legacy_march_p95_kW=original_trigger,
+                                              legacy_trigger_reproduced=True, march_expected_intervals=len(march_dates),
+                                              march_valid_intervals=int(march.baseline_total_kW.notna().sum()),
+                                              march_coverage_pct=100*march_coverage, april_expected_intervals=len(april_dates),
+                                              april_valid_intervals=int(april.baseline_total_kW.notna().sum()),
+                                              april_coverage_pct=100*april_coverage, april_lux_coverage_pct=100*lux_coverage,
+                                              has_lux_sensor=sensor,
+                                              status=('insufficient calibration' if not calibration_ok else
+                                                      'insufficient April power coverage' if april_coverage < gate else
+                                                      'no lux sensor' if not sensor else
+                                                      'insufficient March lux calibration' if not calibration['lux_calibration_supported'] else
+                                                      'insufficient April paired coverage' if lux_coverage < gate else
+                                                      'no valid lux' if not out.ambient_lux.notna().any() else
+                                                      'modeled result; comfort unvalidated'))
+                                summaries.append(result)
                                 for reason, count in out.eligibility_reason.value_counts().items():
                                     reasons.append(dict(floor=floor, zone=zone, scenario_id=scenario_id,
                                                         reason=reason, intervals=int(count)))
-                                primary = (policy == 'strict' and gate == options['primary_period_coverage_gate'] and
-                                           target == options['primary_target_lux'] and cap == options['primary_cap'])
+                                primary = (quantile == options['primary_lux_quantile'] and
+                                           policy == 'strict' and gate == options['primary_period_coverage_gate'] and cap == options['primary_cap'])
                                 if primary:
                                     primary_parts.append(out.assign(floor=floor, zone=zone, schedule_id=schedule_id))
                                 out.assign(floor=floor, zone=zone, scenario_id=scenario_id, schedule_id=schedule_id).rename_axis('Date').reset_index().to_csv(stream,index=False,header=first)
                                 first = False
     summary = pd.DataFrame(summaries); reasons = pd.DataFrame(reasons)
     summary.to_csv(OUTPUT/'scenario_sensitivity.csv',index=False)
+    calibration_columns = ['floor','zone','schedule_id','operating_window','policy','period_coverage_gate',
+                           'lux_quantile','lux_trigger_lux','march_lux_valid_intervals','march_lux_coverage_pct','lux_calibration_supported']
+    calibration = summary.loc[summary.trigger_method.eq('march_percentile'), calibration_columns].drop_duplicates()
+    calibration.to_csv(OUTPUT/'lighting_lux_calibration.csv', index=False)
     primary_mask = (summary.policy.eq('strict') & summary.period_coverage_gate.eq(options['primary_period_coverage_gate']) &
-                    summary.target_lux.eq(options['primary_target_lux']) & summary.reduction_cap.eq(options['primary_cap']))
+                    summary.trigger_method.eq('march_percentile') & summary.lux_quantile.eq(options['primary_lux_quantile']) & summary.reduction_cap.eq(options['primary_cap']))
     comparison = summary.loc[primary_mask].copy()
     comparison.to_csv(OUTPUT/'scenario_schedule_comparison.csv',index=False)
     primary = comparison.loc[comparison.schedule_id.eq('primary')].copy()
@@ -155,9 +190,11 @@ def run_scenarios():
     reasons.to_csv(OUTPUT/'scenario_exclusion_reasons.csv',index=False)
     validations = [(schedule_id, build_validation_tables(data, schedule)) for schedule_id, schedule in schedule_settings(settings)]
     coverage = pd.concat([tables[0].assign(schedule_id=sid) for sid,tables in validations],ignore_index=True)
-    targets = pd.concat([tables[1].assign(schedule_id=sid) for sid,tables in validations],ignore_index=True)
+    lux_observations = pd.concat([tables[1].assign(schedule_id=sid) for sid,tables in validations],ignore_index=True)
     coverage.to_csv(OUTPUT/'building_coincidence_audit.csv',index=False)
-    targets.to_csv(OUTPUT/'lighting_target_validation.csv',index=False)
+    lux_observations.to_csv(OUTPUT/'lighting_lux_observations.csv',index=False)
+    # Remove the obsolete generated benchmark table so local readers cannot mistake it for current output.
+    (OUTPUT/'lighting_target_validation.csv').unlink(missing_ok=True)
     aligned = pd.concat(primary_parts).reset_index(names='Date')
     impacts = []
     for schedule_id, schedule in schedule_settings(settings):
@@ -184,7 +221,7 @@ def run_scenarios():
         audit_source_sha256=sha256(HERE/'validation_audit.py'), settings=settings,
         evaluation_window='April weekday operating hours; not full-month peak',
         comfort_validation='not performed',independent_main_meter='not supplied'),indent=2)+'\n')
-    return dict(settings=settings,schedule_comparison=comparison,summary=primary,sensitivity=summary,reasons=reasons,coverage=coverage,targets=targets,impacts=impacts)
+    return dict(settings=settings,lux_calibration=calibration,schedule_comparison=comparison,summary=primary,sensitivity=summary,reasons=reasons,coverage=coverage,lux_observations=lux_observations,impacts=impacts)
 
 
 
@@ -197,7 +234,7 @@ def plot_scenario_results(results):
     fig, axes = plt.subplots(1,2,figsize=(13,4.5),layout='constrained')
     palette = ['#2878b5','#c56624','#809367','#aaaaaa','#735d9f','#c4a650']
     counts.plot.barh(stacked=True,ax=axes[0],color=palette[:len(counts.columns)])
-    axes[0].set(title='Floor 2: why the primary rule takes no action',xlabel='April operating-window hours',ylabel='Zone')
+    axes[0].set(title='Floor 2: primary rule eligibility and limitations',xlabel='April operating-window hours',ylabel='Zone')
     axes[0].legend(fontsize=8,loc='upper left',bbox_to_anchor=(0,-.20))
     coverage = results['coverage'].query("policy == 'complete cleaned power' and window == 'operating hours' and schedule_id == 'primary'")
     axes[1].barh(coverage.scope,coverage.coverage_pct,color=['#aaaaaa','#2878b5'])
@@ -218,6 +255,9 @@ def export_combined_results(results, assessment):
     primary = results['summary']
     overview = {
         'operating_window': label(results['settings']),
+        'primary_lux_quantile': results['settings']['scenarios']['primary_lux_quantile'],
+        'investigation_interpretation': 'Unusually bright and high-demand relative to March; not vacancy or excess lighting.',
+        'reduction_interpretation': 'Conditional electrical cap what-if; not calibrated fixture or comfort-safe savings.',
         'zones': len(primary),
         'reportable_zones': int(primary.reported_peak_reduction_kW.notna().sum()),
         'withheld_zones': int(primary.reported_peak_reduction_kW.isna().sum()),

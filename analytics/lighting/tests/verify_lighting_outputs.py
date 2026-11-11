@@ -32,6 +32,26 @@ def verify_outputs():
     expected = summary.set_index(keys)
     calendar = pd.read_csv(ROOT / 'outputs/data-cleaned/aggregated/day_calendar.csv')
     holidays = pd.to_datetime(calendar.loc[calendar.observed_by_university.eq(True), 'Date'])
+    # Independently reconstruct March lux references from the shared input table.
+    sys.path.insert(0, str(ROOT))
+    sys.path.insert(0, str(ROOT / 'analytics/lighting'))
+    from lighting_scenarios import policy_series
+    from schedules import schedule_settings, operating_index
+    shared = pd.read_csv(OUTPUT / 'zone_15min.csv', parse_dates=['Date'])
+    input_settings = json.loads((OUTPUT / 'run_manifest.json').read_text())['settings']
+    schedules = dict(schedule_settings(input_settings))
+    for (floor, zone, sid, policy), rows in summary.loc[summary.trigger_method.eq('march_percentile')].groupby(['floor','zone','schedule_id','policy']):
+        group = shared.loc[shared.floor.eq(floor) & shared.zone.eq(zone)].set_index('Date')
+        dates = operating_index(schedules[sid], input_settings['calibration_start'], input_settings['evaluation_start'])
+        lux = policy_series(group, policy).reindex(dates).ambient_lux
+        lux = lux.where(lux.ge(0))
+        for q, cases in rows.groupby('lux_quantile'):
+            assert np.allclose(cases.lux_trigger_lux, lux.quantile(q, interpolation='linear'), equal_nan=True), 'March lux reference does not reproduce'
+            assert cases.march_lux_valid_intervals.eq(lux.notna().sum()).all()
+            assert np.allclose(cases.march_lux_coverage_pct, 100*lux.notna().mean())
+            supported = (lux.notna().sum() >= input_settings['scenarios']['minimum_lux_calibration_intervals'] and
+                         lux.nunique() > 1 and pd.notna(lux.quantile(q)) and lux.quantile(q) > 0)
+            assert cases.lux_calibration_supported.eq(supported & cases.period_coverage_gate.le(lux.notna().mean())).all()
     totals, reason_counts = {}, Counter()
     interval_count = 0
     for chunk in pd.read_csv(OUTPUT / 'scenario_intervals.csv.gz', chunksize=100_000):
@@ -49,16 +69,21 @@ def verify_outputs():
             setting = expected.loc[key]
             assert group.schedule_id.eq(setting.schedule_id).all()
             assert not (group.reduction_kW > setting.reduction_cap * group.lighting_kW + 1e-9).fillna(False).any()
+            expected_flag = (group.baseline_total_kW.gt(setting.march_p95_kW) &
+                             group.ambient_lux.gt(setting.lux_trigger_lux) &
+                             group.lighting_kW.notna() & group.ambient_lux.gt(0) &
+                             (setting.march_coverage_pct >= 100*setting.period_coverage_gate) &
+                             setting.lux_calibration_supported & setting.has_lux_sensor)
+            assert group.investigation_flag.equals(expected_flag.rename('investigation_flag'))
             eligible = group.eligibility_reason.eq('eligible')
-            assert group.loc[eligible, 'ambient_lux'].gt(setting.target_lux).all()
+            assert group.loc[eligible, 'ambient_lux'].gt(setting.lux_trigger_lux).all()
             assert group.loc[eligible, 'baseline_total_kW'].gt(setting.march_p95_kW).all()
-            formula = ((1 - setting.target_lux / group.loc[eligible, 'ambient_lux'])
-                       .clip(0, setting.reduction_cap) * group.loc[eligible, 'lighting_kW'])
+            formula = setting.reduction_cap * group.loc[eligible, 'lighting_kW']
             assert np.allclose(group.loc[eligible, 'reduction_kW'], formula)
             if setting.reduction_cap == 0:
                 assert np.allclose(group.baseline_total_kW, group.scenario_total_kW, equal_nan=True)
             record = totals.setdefault(key, dict(rows=0, valid=0, base=-np.inf, after=-np.inf,
-                                                reduction=0., dates=set()))
+                                                reduction=0., investigation=0, dates=set()))
             dates = set(group.Date)
             assert len(dates) == len(group) and not record['dates'].intersection(dates), 'Duplicate interval keys'
             record['dates'].update(dates)
@@ -68,6 +93,7 @@ def verify_outputs():
                 record['base'] = max(record['base'], group.baseline_total_kW.max())
                 record['after'] = max(record['after'], group.scenario_total_kW.max())
             record['reduction'] += group.reduction_kW.sum()
+            record['investigation'] += int(group.investigation_flag.sum())
             reason_counts.update({(*key, reason): int(n) for reason, n in group.eligibility_reason.value_counts().items()})
     assert set(totals) == set(expected.index), (
         f'Detailed scenario file and summary disagree: {len(totals)} vs '
@@ -76,6 +102,7 @@ def verify_outputs():
         row = expected.loc[key]
         assert record['rows'] == row.april_expected_intervals
         assert record['valid'] == row.april_valid_intervals
+        assert record['investigation'] == row.investigation_intervals
         base = record['base'] if record['valid'] else np.nan
         after = record['after'] if record['valid'] else np.nan
         energy = record['reduction'] / 4 if record['valid'] else np.nan
@@ -102,7 +129,16 @@ def verify_outputs():
     impacts = pd.read_csv(OUTPUT / 'coincident_scenario_impact.csv')
     assert len(impacts) == 2 * summary.schedule_id.nunique()
     scenario_manifest = json.loads((OUTPUT / 'scenario_manifest.json').read_text())
-    gate = scenario_manifest['settings']['scenarios']['primary_period_coverage_gate']
+    options = scenario_manifest['settings']['scenarios']
+    assert primary.trigger_method.eq('march_percentile').all()
+    assert primary.lux_quantile.eq(options['primary_lux_quantile']).all()
+    assert primary.response_model.eq('conditional_cap').all()
+    assert 'target_lux' not in summary.columns, 'Lux cutoffs must come from March calibration'
+    assert summary.trigger_method.eq('march_percentile').all()
+    assert summary.response_model.eq('conditional_cap').all()
+    assert primary.reported_investigation_hours.notna().equals(primary.reported_peak_reduction_kW.notna())
+    assert np.allclose(primary.reported_investigation_hours.dropna(), primary.loc[primary.reported_investigation_hours.notna(), 'investigation_intervals']/4)
+    gate = options['primary_period_coverage_gate']
     assert impacts.loc[impacts.coverage_pct < gate * 100, 'reported_peak_reduction_kW'].isna().all()
     manifest = json.loads((OUTPUT / 'run_manifest.json').read_text())
     for relative, expected_digest in manifest['sources'].items():

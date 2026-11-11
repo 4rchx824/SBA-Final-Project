@@ -27,16 +27,9 @@
   "primary_activity_persistence_minutes": 60,
   "matched_power_bins": 10,
   "minimum_matched_bin_count": 8,
-  "note": "Operating states are activity proxies, not occupancy labels. Scenario targets/caps and proportional lux response are illustrative, not approved controls or demonstrated comfort-safe savings.",
+  "note": "March zone-level lux percentiles flag investigation candidates, not comfort requirements. Electrical cap scenarios are illustrative; occupancy, fixture response and comfort-safe savings are unverified.",
   "quality_reports": "outputs/data-cleaned/quality",
   "scenarios": {
-    "lux_targets": [
-      100,
-      150,
-      200,
-      300,
-      500
-    ],
     "power_reduction_caps": [
       0,
       0.05,
@@ -51,9 +44,15 @@
       "strict",
       "common_minutes"
     ],
-    "primary_target_lux": 500,
     "primary_cap": 0.2,
-    "primary_period_coverage_gate": 0.8
+    "primary_period_coverage_gate": 0.8,
+    "lux_quantiles": [
+      0.9,
+      0.95,
+      0.975
+    ],
+    "primary_lux_quantile": 0.95,
+    "minimum_lux_calibration_intervals": 96
   },
   "schedule_sensitivities": [
     {
