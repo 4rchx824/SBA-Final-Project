@@ -7,32 +7,10 @@ __pycache__/
 # macOS
 .DS_Store
 
-# ===== Data Cleaning =====
-# All cleaning outputs are generated under the project-root outputs directory.
+# Generated outputs are recreated by the cleaning and analytics workflows.
+/outputs/
+# Legacy cleaning output location.
 /data-cleaning/outputs/
-/outputs/data-cleaned/clean/
 
-# ===== Baseline =====
-# Large regenerated outputs (~1.5 GB): run the appropriate baseline notebook to recreate them
-# Generated baseline tables, figures, and weather cache (regenerable from each notebook).
-outputs/baseline/humidity_risk_baseline/
-outputs/baseline/lighting_peak_baseline/
-
-# Tracked cleaning tables and reports (everything else in these folders is regenerated).
-# Additional regenerated outputs remain ignored.
-outputs/data-cleaned/aggregated/*
-!outputs/data-cleaned/aggregated/building_15min.csv
-!outputs/data-cleaned/aggregated/floor_15min.csv
-!outputs/data-cleaned/aggregated/zone_hourly.csv
-!outputs/data-cleaned/aggregated/daily_summary.csv
-# Day-by-day calendar with holiday labels
-!outputs/data-cleaned/aggregated/day_calendar.csv
-outputs/data-cleaned/quality/*
-!outputs/data-cleaned/quality/data_quality.csv
-!outputs/data-cleaned/quality/removed_readings.csv
-# Large regenerated analytical intermediates; compact CSV/JSON results are shared.
-outputs/lighting/zone_15min.csv
-outputs/lighting/lighting_activity_intervals.csv
-outputs/lighting/scenario_intervals.csv.gz
-outputs/lighting/*_figures/
+# Local historical backups.
 tmp/

@@ -112,4 +112,4 @@ outputs/data-cleaned/
 └── quality/     # data_quality.csv, removed_readings.csv, interpolated_runs.csv
 ```
 
-This is the only output location: the notebook does not create a second copy under `data-cleaning/`. Cleaned CSVs and the interpolation log are ignored by Git; the selected aggregate tables and quality reports remain trackable from the root output folder.
+This is the only output location: the notebook does not create a second copy under `data-cleaning/`. All generated cleaning outputs are ignored by Git under the root `outputs/` folder. Run this notebook to recreate cleaned files, aggregate tables, quality reports and figures locally.
