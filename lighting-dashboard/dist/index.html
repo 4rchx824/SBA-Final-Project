@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Chamchuri 5 · Lighting analytics</title>
+  <meta name="description" content="Explore verified CU-BEMS lighting demand, schedule patterns, data coverage and conditional reduction scenarios for Chamchuri 5.">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="data.js"></script><script defer src="app.js"></script>
+</head>
+<body>
+<aside class="sidebar">
+  <a class="brand" href="#overview" aria-label="Chamchuri 5 home"><span class="brand-icon">C<span>5</span></span><span>CHAMCHURI 5<small>BUILDING INTELLIGENCE</small></span></a>
+  <div class="workspace-label">ANALYTICS WORKSPACE</div>
+  <nav aria-label="Dashboard sections"><a class="active" href="#overview"><span>◈</span> Lighting overview</a><a href="#explorer"><span>▥</span> Zone explorer</a><a href="#scenarios"><span>◌</span> Scenario lab</a><a href="#quality"><span>▤</span> Evidence & quality</a></nav>
+  <div class="sidebar-note"><span class="small-dot"></span> RETROSPECTIVE STUDY<p>CU-BEMS · Bangkok</p><small>March–April 2019<br>Floors 1–7 · 33 zones</small></div>
+  <div class="sidebar-bottom">Smart Building Analytics<small>Lighting research workspace</small></div>
+</aside>
+<main>
+  <header class="topbar"><div><span class="breadcrumb">Analytics</span><span class="slash">/</span> Lighting</div><span class="audit-badge"><i></i> Verified data snapshot</span></header>
+  <section id="overview">
+    <div class="page-title"><div><div class="eyebrow">ENERGY & ENVIRONMENT</div><h1>Lighting analytics</h1><p>Lighting demand, schedule patterns and conditional scenarios.</p></div></div>
+    <div class="scope-bar"><div><span class="label">EVALUATION PERIOD</span><strong>April 2019 <span class="muted">· 30 days</span></strong></div><div><span class="label">CALIBRATION</span><strong>6–31 March 2019</strong></div><div class="floor-control"><label for="floor" class="label">BUILDING SCOPE</label><select id="floor"><option value="all">All floors</option><option value="1">Floor 1</option><option value="2">Floor 2</option><option value="3">Floor 3</option><option value="4">Floor 4</option><option value="5">Floor 5</option><option value="6">Floor 6</option><option value="7">Floor 7</option></select></div></div>
+    <div class="metrics" id="metrics" aria-live="polite"></div>
+    <div class="overview-grid">
+      <article class="panel energy-panel"><div class="panel-heading"><div><span class="eyebrow">OBSERVED LIGHTING</span><h2>Where the energy goes</h2></div><span class="pill">All hours · April</span></div><p class="chart-caption">Valid-period lighting energy by floor and assumed schedule.</p><div class="legend"><span><i class="swatch mint"></i>Weekday operating</span><span><i class="swatch purple"></i>Transition 17–18h</span><span><i class="swatch amber"></i>Other hours / closures</span></div><div id="energy-chart" class="energy-chart"></div><div class="chart-footnote">Outside-hours use is an investigation signal, not confirmed waste. Inferred closures and weekends take precedence.</div></article>
+      <article class="panel insight-panel"><div class="eyebrow">RESEARCH NOTE / 01</div><h2>Bright does not<br>mean unnecessary.</h2><p>March lux percentiles flag unusually bright conditions within each zone. They do not establish task-plane comfort or excess lighting.</p><div class="insight-stat"><span>17<span class="muted"> / 33</span></span><small>zones support the primary<br>conditional scenario</small></div><a href="#scenarios" class="text-link">Explore the assumptions <span>↗</span></a></article>
+    </div>
+  </section>
+  <section id="explorer" class="section-block"><div class="section-heading"><div><span class="eyebrow">LOOK CLOSER</span><h2>Zone explorer</h2></div><p>Select a zone to inspect its evidence.</p></div>
+    <div class="explorer-grid"><article class="panel zone-list-panel"><div class="list-toolbar"><label class="sr-only" for="search">Search zones</label><input id="search" type="search" placeholder="Search a zone, e.g. F2 Z2"><label class="sr-only" for="sort">Sort zones</label><select id="sort"><option value="energy">Lighting energy ↓</option><option value="zone">Floor / zone</option><option value="outside">Outside-hours share ↓</option></select></div><div class="zone-list" id="zone-list"></div><div id="list-count" class="chart-footnote"></div></article>
+    <article class="panel detail-panel" id="zone-detail" aria-live="polite"></article></div>
+  </section>
+  <section id="scenarios" class="section-block"><div class="section-heading"><div><span class="eyebrow">CONDITIONAL WHAT-IFS</span><h2>Scenario lab</h2></div><button id="reset" class="button secondary">Reset assumptions</button></div><div class="panel scenario-panel"><div class="scenario-controls">
+    <label>Office window<select id="schedule"><option value="primary">08–17h · weekdays</option><option value="extended">08–18h · weekdays</option><option value="primary_holiday_excluded">08–17h · holidays excluded</option><option value="extended_holiday_excluded">08–18h · holidays excluded</option></select></label>
+    <label>March lux percentile<select id="quantile"><option value="0.9">P90</option><option value="0.95" selected>P95 · primary</option><option value="0.975">P97.5</option></select></label>
+    <label>Electrical reduction cap<select id="cap"><option value="0">0% · no change</option><option value="0.05">5%</option><option value="0.1">10%</option><option value="0.2" selected>20% · primary</option></select></label>
+    <label>Interval support<select id="policy"><option value="strict">Complete cleaned · 15/15</option><option value="common_minutes">Common minutes · ≥12/15</option></select></label>
+    <label>Period coverage gate<select id="gate"><option value="0.8">80% · primary</option><option value="0.95">95%</option></select></label>
+    </div><div class="scenario-note"><span>ⓘ</span> Applied only where April demand and lux exceed frozen March triggers and data gates pass. The cap is an assumed electrical response, not a validated dimming setting.</div><div id="scenario-stats" class="scenario-stats" aria-live="polite"></div><div class="table-scroll"><table><thead><tr><th>Zone</th><th>Result status</th><th>Candidate hours</th><th>Observed peak <small>kW</small></th><th>Conditional peak <small>kW</small></th><th>Peak change <small>kW</small></th><th>Energy change <small>kWh</small></th><th>April power coverage</th></tr></thead><tbody id="scenario-table"></tbody></table></div><div class="table-footer"><span>Peaks are recomputed on identical timestamps. Individual zone peak changes are never summed.</span></div></div>
+  </section>
+  <section id="quality" class="section-block"><div class="section-heading"><div><span class="eyebrow">KNOW THE LIMITS</span><h2>Evidence & data quality</h2></div><span class="pill">Primary scenario · all 33 zones</span></div><div class="quality-grid"><article class="panel"><h3>Why results are withheld</h3><div id="quality-bars"></div></article><article class="panel"><h3>What this analysis can establish</h3><ul class="limits"><li><strong>Demand and schedule patterns</strong><span>Observed lighting use, relative lux patterns and conditional electrical scenarios.</span></li><li><strong>Comfort remains unvalidated</strong><span>Ambient sensors are not task-plane measurements. Plug activity is not attendance.</span></li><li><strong>Building impact is withheld</strong><span>Insufficient simultaneous coverage; aligned submeters are not an independent main meter.</span></li></ul></article></div><div class="audit-strip"><span class="check-icon">✓</span><div><strong>Full output audit passed</strong><span id="audit-details"></span></div><button class="text-link" id="provenance-toggle" aria-expanded="false" aria-controls="provenance">View provenance +</button></div><div id="provenance" class="panel" hidden></div></section>
+  <footer>CHAMCHURI 5 <span>CU-BEMS lighting analysis · Bangkok local time (UTC+7)</span><span>Historical data. No live building controls.</span></footer>
+</main>
+<noscript>This dashboard requires JavaScript to display the verified results. The primary results are also available in scenario_summary.csv.</noscript>
+</body></html>
