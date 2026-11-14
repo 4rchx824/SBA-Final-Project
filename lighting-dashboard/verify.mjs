@@ -28,7 +28,7 @@ elements.get('floor').value='2';elements.get('floor').handlers.change();
 assert.equal(run('scenarioRows().length'),4);
 assert.ok(run('scenarioRows().every(r=>r.floor===2)'));
 elements.get('search').value='F2 Z2';elements.get('search').handlers.input();
-assert.ok(elements.get('list-count').textContent.startsWith('1 zones'));
+assert.ok(elements.get('list-count').textContent.startsWith('1 zone ·'));
 elements.get('search').value='no such zone';elements.get('search').handlers.input();
 assert.ok(elements.get('zone-detail').innerHTML.includes('different search'));
 elements.get('provenance-toggle').handlers.click();assert.equal(elements.get('provenance').hidden,false);
@@ -38,3 +38,19 @@ console.log(`PASS: ${cases} scenario configurations, all 33 zones, primary recon
 
 assert.ok(!/capture|download-slide|export-filtered/i.test(html));
 for (const [,src] of html.matchAll(/<script[^>]+src="([^"]+)"/g)) assert.ok(fs.existsSync(new URL('dist/'+src,import.meta.url)));
+
+// Insights must follow scope, preserve withheld results, and explain no-change controls.
+elements.get('search').value='';elements.get('floor').value='1';elements.get('floor').handlers.change();
+assert.ok(elements.get('metrics').innerHTML.includes('Withheld: no zones pass the data checks'));
+assert.ok(elements.get('overview-insight').innerHTML.includes('Evidence is missing'));
+assert.ok(!elements.get('overview-insight').innerHTML.includes(' / 0'));
+assert.ok(elements.get('scenario-insight').textContent.includes('Results are withheld'));
+elements.get('floor').value='2';elements.get('floor').handlers.change();
+assert.ok(elements.get('overview-insight').innerHTML.includes('F2 · Z2'));
+assert.ok(elements.get('overview-insight').innerHTML.includes('2.25'));
+elements.get('search').value='F2 Z2';elements.get('search').handlers.input();
+assert.ok(elements.get('zone-detail').innerHTML.includes('4.75 / 3.25 / 2.25 hours'));
+elements.get('cap').value='0';elements.get('cap').handlers.change();
+assert.ok(elements.get('scenario-insight').textContent.includes('no-change case'));
+assert.ok(elements.get('scenario-insight').textContent.includes('3 zones have flagged periods'));
+console.log('PASS: floor-aware investigation insights, withheld scope, percentile robustness and zero-cap explanation.');

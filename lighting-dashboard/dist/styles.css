@@ -34,3 +34,8 @@ td, .quality-row { font-size: 13px; }
   .legend { font-size: 11px; }
   .scenario-controls { grid-template-columns: 1fr 1fr; }
 }
+
+/* Keep the explanation and dynamic insights readable without adding another dashboard section. */
+.scope-note{line-height:1.6;margin-top:12px}.method-note{margin:14px 0;color:var(--muted);font-size:13px;line-height:1.65}.method-note summary{cursor:pointer;color:var(--ink);font-weight:600}.method-note p{margin-top:9px;max-width:100ch}.scenario-insight{line-height:1.65;margin:15px 0}.detail-advice p{margin-top:8px;line-height:1.65}.insight-panel h2{line-height:1.25}.insight-panel>p{line-height:1.65}
+
+.scenario-panel .method-note,.scenario-panel .scenario-insight{margin-left:25px;margin-right:25px}
