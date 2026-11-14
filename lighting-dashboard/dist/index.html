@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Chamchuri 5 · Lighting analytics</title>
+  <meta name="description" content="Explore verified CU-BEMS lighting demand, schedule patterns, data coverage and conditional reduction scenarios for Chamchuri 5.">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="data.js"></script><script defer src="app.js"></script>
+</head>
+<body>
+<aside class="sidebar">
+  <a class="brand" href="#overview" aria-label="Chamchuri 5 home"><span class="brand-icon">C<span>5</span></span><span>CHAMCHURI 5<small>BUILDING INTELLIGENCE</small></span></a>
+  <div class="workspace-label">ANALYTICS WORKSPACE</div>
+  <nav aria-label="Dashboard sections"><a class="active" href="#overview"><span>◈</span> Lighting overview</a><a href="#explorer"><span>▥</span> Zone explorer</a><a href="#scenarios"><span>◌</span> Scenario lab</a><a href="#quality"><span>▤</span> Evidence & quality</a></nav>
+  <div class="sidebar-note"><span class="small-dot"></span> RETROSPECTIVE STUDY<p>CU-BEMS · Bangkok</p><small>March–April 2019<br>Floors 1–7 · 33 zones</small></div>
+  <div class="sidebar-bottom">Smart Building Analytics<small>Lighting research workspace</small></div>
+</aside>
+<main>
+  <header class="topbar"><div><span class="breadcrumb">Analytics</span><span class="slash">/</span> Lighting</div><span class="audit-badge"><i></i> Audited historical snapshot</span></header>
+  <section id="overview">
+    <div class="page-title"><div><div class="eyebrow">ENERGY & ENVIRONMENT</div><h1>Lighting analytics</h1><p>Find lighting periods worth investigating, then test conditional reduction assumptions.</p></div></div>
+    <div class="scope-bar"><div><span class="label">EVALUATION PERIOD</span><strong>April 2019 <span class="muted">· 30 days</span></strong></div><div><span class="label">CALIBRATION</span><strong>6–31 March 2019</strong></div><div class="floor-control"><label for="floor" class="label">BUILDING SCOPE</label><select id="floor"><option value="all">All floors</option><option value="1">Floor 1</option><option value="2">Floor 2</option><option value="3">Floor 3</option><option value="4">Floor 4</option><option value="5">Floor 5</option><option value="6">Floor 6</option><option value="7">Floor 7</option></select></div></div>
+    <p class="chart-caption scope-note">Overview and zone profiles use the primary weekday 08:00–17:00 assumptions. Scenario lab controls apply to that section only.</p>
+    <div class="metrics" id="metrics" aria-live="polite"></div>
+    <div class="overview-grid">
+      <article class="panel energy-panel"><div class="panel-heading"><div><span class="eyebrow">OBSERVED LIGHTING</span><h2>Lighting use by floor</h2></div><span class="pill">All hours · April</span></div><p class="chart-caption">Recorded-period lighting energy, split by schedule and inferred closures.</p><div class="legend"><span><i class="swatch mint"></i>Working-day office hours</span><span><i class="swatch purple"></i>Transition 17–18h</span><span><i class="swatch amber"></i>Other hours / closures</span></div><div id="energy-chart" class="energy-chart"></div><div class="chart-footnote">Inferred closures and weekends are grouped under other hours. The outside-hours KPI uses the weekday clock schedule, including holidays; these are different calendar views. Neither identifies confirmed waste.</div></article>
+      <article class="panel insight-panel" id="overview-insight" aria-live="polite"></article>
+    </div>
+  </section>
+  <section id="explorer" class="section-block"><div class="section-heading"><div><span class="eyebrow">LOOK CLOSER</span><h2>Zone explorer</h2></div><p>Compare each zone’s demand, data coverage and investigation signals.</p></div>
+    <div class="explorer-grid"><article class="panel zone-list-panel"><div class="list-toolbar"><label class="sr-only" for="search">Search zones</label><input id="search" type="search" placeholder="Search a zone, e.g. F2 Z2"><label class="sr-only" for="sort">Sort zones</label><select id="sort"><option value="energy">Lighting energy ↓</option><option value="zone">Floor / zone</option><option value="outside">Outside-hours share ↓</option></select></div><div class="zone-list" id="zone-list"></div><div id="list-count" class="chart-footnote"></div></article>
+    <article class="panel detail-panel" id="zone-detail" aria-live="polite"></article></div>
+  </section>
+  <section id="scenarios" class="section-block"><div class="section-heading"><div><span class="eyebrow">CONDITIONAL WHAT-IFS</span><h2>Scenario lab</h2></div><button id="reset" class="button secondary">Reset assumptions</button></div><div class="panel scenario-panel"><div class="scenario-controls">
+    <label>Office window<select id="schedule"><option value="primary">08–17h · weekdays</option><option value="extended">08–18h · weekdays</option><option value="primary_holiday_excluded">08–17h · holidays excluded</option><option value="extended_holiday_excluded">08–18h · holidays excluded</option></select></label>
+    <label>Lux investigation cutoff<select id="quantile"><option value="0.9">P90</option><option value="0.95" selected>P95 · primary</option><option value="0.975">P97.5</option></select></label>
+    <label>Lighting-power reduction assumption<select id="cap"><option value="0">0% · no change</option><option value="0.05">5%</option><option value="0.1">10%</option><option value="0.2" selected>20% · primary</option></select></label>
+    <label>15-minute data completeness<select id="policy"><option value="strict">All 15 cleaned minutes</option><option value="common_minutes">≥12 shared cleaned minutes</option></select></label>
+    <label>Minimum period data coverage<select id="gate"><option value="0.8">80% · primary</option><option value="0.95">95%</option></select></label>
+    </div><div class="scenario-note"><span>ⓘ</span> Flagged intervals exceed both March demand P95 and the selected March lux percentile. Reductions apply only where data checks pass; the percentage is a what-if assumption, not a validated dimming setting.</div><details class="method-note"><summary>How to read the investigation rule</summary><p>P95 is the level at or below which 95% of valid March readings fall for that zone. P90 is less restrictive; P97.5 is stricter. Demand always uses March P95. Cutoffs are frozen before evaluating April and do not define comfortable lighting. The coverage setting checks March calibration and April demand/lux availability. Cleaned intervals can contain interpolation.</p></details><p id="scenario-insight" class="chart-caption scenario-insight" aria-live="polite"></p><div id="scenario-stats" class="scenario-stats" aria-live="polite"></div><div class="table-scroll"><table><thead><tr><th>Zone</th><th>Result status</th><th>Flagged time <small>zone-hours</small></th><th>Observed peak <small>kW</small></th><th>Modeled peak <small>kW</small></th><th>Modeled peak reduction <small>kW</small></th><th>Modeled energy reduction <small>kWh</small></th><th>April power coverage</th></tr></thead><tbody id="scenario-table"></tbody></table></div><div class="table-footer"><span>Peaks are recomputed on identical timestamps. Individual zone peak changes are never summed.</span></div></div>
+  </section>
+  <section id="quality" class="section-block"><div class="section-heading"><div><span class="eyebrow">KNOW THE LIMITS</span><h2>Evidence & data quality</h2></div><span class="pill">Primary scenario · all 33 zones</span></div><div class="quality-grid"><article class="panel"><h3>Which zones have enough evidence?</h3><div id="quality-bars"></div></article><article class="panel"><h3>What this analysis can establish</h3><ul class="limits"><li><strong>Demand and schedule patterns</strong><span>Observed lighting use, relative lux patterns and conditional electrical scenarios.</span></li><li><strong>Comfort remains unvalidated</strong><span>Ambient sensors are not task-plane measurements. Plug activity is not attendance.</span></li><li><strong>Building impact is withheld</strong><span>Insufficient simultaneous coverage; aligned submeters are not an independent main meter.</span></li></ul></article></div><div class="audit-strip"><span class="check-icon">✓</span><div><strong>Source audit passed at export</strong><span id="audit-details"></span></div><button class="text-link" id="provenance-toggle" aria-expanded="false" aria-controls="provenance">View provenance +</button></div><div id="provenance" class="panel" hidden></div></section>
+  <footer>CHAMCHURI 5 <span>CU-BEMS lighting analysis · Bangkok local time (UTC+7)</span><span>Historical data. No live building controls.</span></footer>
+</main>
+<noscript>This dashboard requires JavaScript to display the verified results. The primary results are also available in scenario_summary.csv.</noscript>
+</body></html>
